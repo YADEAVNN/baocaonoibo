@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YADEA ERP Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+        }
+        .nav-link.active {
+            color: #F97316; /* text-orange-500 */
+            border-bottom: 2px solid #F97316;
+        }
+        .magazine-title {
+            font-family: 'Playfair Display', serif;
+        }
+        .content-tab {
+            display: none;
+        }
+        /* Tab Trang Chủ được hiển thị mặc định khi vào Dashboard */
+        .initial-active-tab {
+            display: block !important; 
+        }
+        /* CSS cho Loading State (Vẫn giữ phòng khi cần dùng) */
+        .loading-animation {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #F97316;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <!-- Trang Đăng nhập -->
+    <div id="login-page" class="flex items-center justify-center min-h-screen bg-gray-50">
+        <div class="w-full max-w-4xl p-8">
+            <div class="bg-white rounded-2xl shadow-xl flex">
+                <!-- Phần bên trái - Logo và Thương hiệu -->
+                <div class="w-1/2 bg-white p-12 flex flex-col justify-center items-center rounded-l-2xl">
+                    <img src="https://raw.githubusercontent.com/vuhuythanh/tichdiem/refs/heads/main/logo%20YADEA.png" alt="YADEA Logo" class="h-20 mb-4">
+                    <h1 class="text-3xl font-bold text-gray-800">YADEA ERP</h1>
+                    <p class="text-gray-500 mt-2">Electrify Your Life</p>
+                </div>
+                <!-- Phần bên phải - Form Đăng nhập -->
+                <div class="w-1/2 p-12">
+                    <h2 class="text-2xl font-bold text-gray-700 mb-2">Welcome</h2>
+                    <p class="text-gray-500 mb-8">Please provide your details</p>
+                    <form id="login-form">
+                        <div class="mb-4">
+                            <label for="username" class="block text-gray-600 text-sm font-medium mb-2">Username</label>
+                            <input type="text" id="username" value="thanh.vu" class="w-full px-4 py-3 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500">
+                        </div>
+                        <div class="mb-6">
+                            <label for="password" class="block text-gray-600 text-sm font-medium mb-2">Password</label>
+                            <input type="password" id="password" value="••••••••" class="w-full px-4 py-3 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500">
+                        </div>
+                        <button type="submit" id="login-btn" class="w-full bg-orange-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-orange-600 transition-colors duration-300 flex items-center justify-center">
+                            Sign In
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Trang Tổng Quan (Mặc định ẩn) -->
+    <div id="dashboard-page" class="hidden w-full h-screen bg-white flex-col">
+        <!-- Thanh Điều Hướng -->
+        <header class="shadow-md sticky top-0 bg-white z-10">
+            <nav class="container mx-auto px-6 py-2 flex items-center justify-start space-x-6">
+                <img src="https://raw.githubusercontent.com/vuhuythanh/tichdiem/refs/heads/main/logo%20YADEA.png" alt="YADEA Logo" class="h-10">
+                <!-- Các liên kết -->
+                <a href="#" class="nav-link text-gray-600 font-semibold py-2 whitespace-nowrap" data-target="tap-chi">TẠP CHÍ YADEA</a>
+                <a href="#" class="nav-link text-gray-600 font-semibold py-2 active" data-target="trang-chu">TRANG CHỦ</a>
+                <a href="#" class="nav-link text-gray-600 font-semibold py-2" data-target="ban-hang">BÁN HÀNG</a>
+                <a href="#" class="nav-link text-gray-600 font-semibold py-2" data-target="hinh-anh">HÌNH ẢNH</a>
+                <a href="#" class="nav-link text-gray-600 font-semibold py-2" data-target="hoat-dong">HOẠT ĐỘNG</a>
+                <a href="#" class="nav-link text-gray-600 font-semibold py-2" data-target="dao-tao">ĐÀO TẠO</a>
+            </nav>
+        </header>
+        <!-- Vùng Nội dung chính -->
+        <main class="flex-grow container mx-auto px-6 py-8 overflow-y-auto bg-gray-50">
+            <div id="content-area">
+                <!-- Nội dung Trang chủ (Dữ liệu tĩnh) -->
+                <div id="trang-chu-content" class="content-tab initial-active-tab">
+                   <div id="dashboard-content">
+                       <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                           <!-- Cột trái: Thông tin & Sale -->
+                           <div class="lg:col-span-2 space-y-8">
+                               <!-- Card Thông tin nhân viên (Dữ liệu Tĩnh) -->
+                               <div class="bg-white p-8 rounded-xl shadow-lg border border-gray-200 hover:shadow-2xl transition-shadow duration-300">
+                                   <div class="flex items-center space-x-6">
+                                       <img id="user-avatar" class="h-24 w-24 rounded-full object-cover" src="https://placehold.co/100x100/FFE4E6/333333?text=VHT" alt="Avatar">
+                                       <div>
+                                           <h2 id="user-full-name" class="text-3xl font-bold text-gray-800">Vũ Huy Thành</h2>
+                                           <p id="user-position-store" class="text-gray-500 text-base mt-1">Quản lý - Cửa hàng YADEA Thủ Dầu Một</p>
+                                           <div class="flex items-center mt-2">
+                                                <div id="user-star-rating" class="text-yellow-400 text-xl">
+                                                    <!-- Stars: 4/5 sao -->
+                                                    <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="far fa-star"></i>
+                                                </div>
+                                                <span id="user-total-score" class="ml-3 text-lg font-semibold text-gray-700">1,940.0</span>
+                                           </div>
+                                       </div>
+                                   </div>
+                                   <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 text-gray-600">
+                                        <p><strong class="font-medium text-gray-800">Mã nhân viên:</strong> <span id="user-employee-id">24051018</span></p>
+                                        <p><strong class="font-medium text-gray-800">Ngày sinh:</strong> <span id="user-birth-date">27/10/1992</span></p>
+                                        <p><strong class="font-medium text-gray-800">Số điện thoại:</strong> <span id="user-phone">0987747346</span></p>
+                                        <p><strong class="font-medium text-gray-800">Ngày vào làm:</strong> <span id="user-join-date">05/10/2024</span></p>
+                                        <p class="md:col-span-2"><strong class="font-medium text-gray-800">Email:</strong> <span id="user-email">vuhuythanh.td@gmail.com</span></p>
+                                   </div>
+                                    <div class="mt-6">
+                                        <p class="text-sm font-medium text-gray-500">Tiến độ mục tiêu (68%)</p>
+                                        <div class="w-full bg-gray-200 rounded-full h-2.5 mt-2">
+                                            <div id="progress-bar" class="bg-orange-500 h-2.5 rounded-full" style="width: 68%"></div>
+                                        </div>
+                                        <p id="progress-percentage" class="text-right text-sm font-medium text-gray-700 mt-1">68%</p>
+                                    </div>
+                               </div>
+    
+                               <!-- Card Sale Indicators (Dữ liệu Tĩnh) -->
+                               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                   <!-- Card Sell-In (SI) -->
+                                   <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200 flex items-center justify-between hover:shadow-2xl transition-shadow duration-300 border-l-4 border-blue-500">
+                                       <div>
+                                           <h3 class="text-lg font-semibold text-gray-500">Sell-In (SI)</h3>
+                                           <p id="sell-in-value" class="text-3xl font-extrabold text-blue-800 mt-1">1,250 SP</p>
+                                           <span id="sell-in-change" class="text-sm text-green-500"><i class="fas fa-caret-up"></i> +12.5% so với tháng trước</span>
+                                       </div>
+                                       <div class="p-3 bg-blue-100 rounded-full text-blue-500">
+                                           <i class="fas fa-boxes text-2xl"></i>
+                                       </div>
+                                   </div>
+                                   <!-- Card Sell-Out (SO) -->
+                                   <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200 flex items-center justify-between hover:shadow-2xl transition-shadow duration-300 border-l-4 border-red-500">
+                                       <div>
+                                           <h3 class="text-lg font-semibold text-gray-500">Sell-Out (SO)</h3>
+                                           <p id="sell-out-value" class="text-3xl font-extrabold text-red-800 mt-1">980 SP</p>
+                                           <span id="sell-out-change" class="text-sm text-red-500"><i class="fas fa-caret-down"></i> -5.2% so với Qúy trước</span>
+                                       </div>
+                                       <div class="p-3 bg-red-100 rounded-full text-red-500">
+                                           <i class="fas fa-shipping-fast text-2xl"></i>
+                                       </div>
+                                   </div>
+                               </div>
+                           </div>
+                           
+                           <!-- Cột phải: Mục tiêu & Quiz & Chi tiết -->
+                           <div class="space-y-8">
+                                <!-- Card Quiz (Dữ liệu Tĩnh) -->
+                                <div class="bg-white p-8 rounded-xl shadow-lg border border-gray-200 hover:shadow-2xl transition-shadow duration-300">
+                                    <h3 class="text-xl font-bold text-gray-800 flex items-center"><i class="fas fa-question-circle mr-3 text-orange-500"></i>QUIZ KIẾN THỨC HÀNG NGÀY</h3>
+                                    <form id="quiz-form" class="mt-6 space-y-6">
+                                        <div id="quiz-questions-area" class="space-y-6">
+                                            <!-- Quiz 1 -->
+                                            <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                                <p class="font-semibold text-gray-800 mb-3" id="q1-text">1. (Mô phỏng) Đâu là dòng sản phẩm xe đạp điện mới nhất của YADEA?</p>
+                                                <div class="space-y-2 text-sm" data-question-id="Q001">
+                                                    <label class="flex items-center space-x-2">
+                                                        <input type="radio" name="q1" value="A" class="form-radio text-orange-500"><span id="q1-opt-a">A. VoltGuard</span>
+                                                    </label>
+                                                    <label class="flex items-center space-x-2">
+                                                        <input type="radio" name="q1" value="B" class="form-radio text-orange-500"><span id="q1-opt-b">B. Ocean</span>
+                                                    </label>
+                                                    <label class="flex items-center space-x-2">
+                                                        <input type="radio" name="q1" value="C" class="form-radio text-orange-500"><span id="q1-opt-c">C. Gogo</span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <!-- Quiz 2 -->
+                                            <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                                <p class="font-semibold text-gray-800 mb-3" id="q2-text">2. (Mô phỏng) Pin Graphene TTFAR được bảo hành trong bao lâu?</p>
+                                                <div class="space-y-2 text-sm" data-question-id="Q002">
+                                                    <label class="flex items-center space-x-2">
+                                                        <input type="radio" name="q2" value="A" class="form-radio text-orange-500"><span id="q2-opt-a">A. 12 tháng</span>
+                                                    </label>
+                                                    <label class="flex items-center space-x-2">
+                                                        <input type="radio" name="q2" value="B" class="form-radio text-orange-500"><span id="q2-opt-b">B. 18 tháng</span>
+                                                    </label>
+                                                    <label class="flex items-center space-x-2">
+                                                        <input type="radio" name="q2" value="C" class="form-radio text-orange-500"><span id="q2-opt-c">C. 24 tháng</span>
+                                                    </label>
+                                                    <label class="flex items-center space-x-2">
+                                                        <input type="radio" name="q2" value="D" class="form-radio text-orange-500"><span id="q2-opt-d">D. 30 tháng</span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <!-- Quiz 3 -->
+                                            <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                                <p class="font-semibold text-gray-800 mb-3" id="q3-text">3. (Mô phỏng) Mục tiêu doanh số cá nhân của bạn trong quý này là bao nhiêu?</p>
+                                                <div class="space-y-2 text-sm" data-question-id="Q003">
+                                                    <label class="flex items-center space-x-2">
+                                                        <input type="radio" name="q3" value="A" class="form-radio text-orange-500"><span id="q3-opt-a">A. 100 chiếc</span>
+                                                    </label>
+                                                    <label class="flex items-center space-x-2">
+                                                        <input type="radio" name="q3" value="B" class="form-radio text-orange-500"><span id="q3-opt-b">B. 120 chiếc</span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <button type="submit" id="submit-quiz-btn" class="w-full bg-green-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-green-600 transition-colors duration-300 flex items-center justify-center">
+                                            <i class="fas fa-check-circle mr-2"></i> Gửi Đáp Án
+                                        </button>
+                                        <div id="quiz-message" class="text-sm text-center font-semibold mt-3 hidden"></div>
+                                    </form>
+                                    <div id="quiz-completed-message" class="hidden mt-6 bg-green-50 border border-green-200 text-green-700 p-4 rounded-lg text-center font-bold">
+                                        <i class="fas fa-trophy mr-2"></i> Bạn đã hoàn thành Quiz hôm nay!
+                                    </div>
+                                </div>
+
+
+                                <!-- Card Chi tiết (Dữ liệu Tĩnh) -->
+                                <div class="bg-white p-8 rounded-xl shadow-lg border border-gray-200 hover:shadow-2xl transition-shadow duration-300">
+                                    <h3 class="text-xl font-bold text-gray-800 flex items-center"><i class="fas fa-info-circle mr-3 text-orange-500"></i>CHI TIẾT DIỄN BIẾN NHÂN VIÊN</h3>
+                                    <div class="space-y-4 mt-6">
+                                        <div class="flex justify-between items-center text-gray-600">
+                                            <span>Điểm nhiệm vụ</span>
+                                            <span id="score-mission" class="font-bold text-gray-800">780.0</span>
+                                        </div>
+                                         <div class="flex justify-between items-center text-gray-600">
+                                            <span>Điểm ruleta</span>
+                                            <span id="score-ruleta" class="font-bold text-gray-800">330.0</span>
+                                        </div>
+                                         <div class="flex justify-between items-center text-gray-600">
+                                            <span>Điểm Sellout</span>
+                                            <span id="score-sellout" class="font-bold text-gray-800">1,027.0</span>
+                                        </div>
+                                         <div class="flex justify-between items-center text-gray-600">
+                                            <span>Điểm Online</span>
+                                            <span id="score-online" class="font-bold text-gray-800">0.0</span>
+                                        </div>
+                                        <hr class="my-4">
+                                         <div class="flex justify-between items-center text-gray-600">
+                                            <span class="font-semibold text-orange-500">Tổng điểm</span>
+                                            <span id="score-total" class="font-extrabold text-xl text-orange-500">1,940.0</span>
+                                        </div>
+                                    </div>
+                                </div>
+                           </div>
+                       </div>
+                   </div>
+                </div>
+
+                <!-- Nội dung Tạp chí -->
+                <div id="tap-chi-content" class="content-tab">
+                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        <!-- Cột Trái - Bài Viết Chính -->
+                        <div class="lg:col-span-2 relative group">
+                            <div class="absolute top-0 -left-12 h-full flex items-center">
+                                <span class="text-gray-300 font-bold uppercase tracking-widest [writing-mode:vertical-lr] transform rotate-180">Gương Mặt Của Tháng</span>
+                            </div>
+                            <div class="relative w-full h-[600px] rounded-xl overflow-hidden shadow-2xl">
+                                <img src="https://placehold.co/1200x800/333333/FFFFFF?text=YADEA+Chronicle" alt="Featured Article" class="absolute w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                                <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                    <div class="w-20 h-20 bg-white/30 backdrop-blur-sm rounded-full flex items-center justify-center">
+                                         <i class="fas fa-play text-white text-3xl"></i>
+                                    </div>
+                                </div>
+                                <div class="absolute bottom-0 left-0 p-8 text-white">
+                                    <h2 class="text-4xl font-bold magazine-title">Vinh danh nhân sự xuất sắc: Nguyễn Văn A</h2>
+                                    <p class="mt-2 text-gray-200 max-w-lg">Với những nỗ lực không ngừng và thành tích vượt trội...</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Cột Phải - Các Bài Viết Khác -->
+                        <div class="space-y-6 flex flex-col justify-between">
+                            <!-- Tin 1 -->
+                            <div class="flex items-center space-x-4 group cursor-pointer">
+                                <div class="w-32 h-20 rounded-lg overflow-hidden flex-shrink-0 relative">
+                                    <img src="https://placehold.co/300x200/3B82F6/FFFFFF?text=Event" alt="Side Story 1" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110">
+                                    <div class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <i class="fas fa-play text-white text-xl"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <span class="text-xs font-bold text-gray-500">SỰ KIỆN</span>
+                                    <h3 class="font-semibold text-gray-800 mt-1 group-hover:text-orange-600">Team-building sôi nổi tại Vũng Tàu</h3>
+                                </div>
+                            </div>
+                            <!-- Tin 2 -->
+                            <div class="flex items-center space-x-4 group cursor-pointer">
+                                <div class="w-32 h-20 rounded-lg overflow-hidden flex-shrink-0 relative">
+                                    <img src="https://placehold.co/300x200/10B981/FFFFFF?text=Sharing" alt="Side Story 2" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110">
+                                     <div class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <i class="fas fa-play text-white text-xl"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <span class="text-xs font-bold text-gray-500">ĐÀO TẠO</span>
+                                    <h3 class="font-semibold text-gray-800 mt-1 group-hover:text-orange-600">Buổi chia sẻ online: Kỹ năng chốt sale</h3>
+                                </div>
+                            </div>
+                            <!-- Tin 3 -->
+                            <div class="flex items-center space-x-4 group cursor-pointer">
+                                <div class="w-32 h-20 rounded-lg overflow-hidden flex-shrink-0 relative">
+                                    <img src="https://placehold.co/300x200/8B5CF6/FFFFFF?text=Project" alt="Side Story 3" class="w-full h-32 object-cover transition-transform duration-300 group-hover:scale-110">
+                                     <div class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <i class="fas fa-play text-white text-xl"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <span class="text-xs font-bold text-gray-500">CẬP NHẬT</span>
+                                    <h3 class="font-semibold text-gray-800 mt-1 group-hover:text-orange-600">Khởi động dự án "YADEA Green Future"</h3>
+                                </div>
+                            </div>
+                             <!-- Tin 4 -->
+                            <div class="flex items-center space-x-4 group cursor-pointer">
+                                <div class="w-32 h-20 rounded-lg overflow-hidden flex-shrink-0 relative">
+                                    <img src="https://placehold.co/300x200/EC4899/FFFFFF?text=Story" alt="Side Story 4" class="w-full h-32 object-cover transition-transform duration-300 group-hover:scale-110">
+                                     <div class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <i class="fas fa-play text-white text-xl"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <span class="text-xs font-bold text-gray-500">CÂU CHUYỆN</span>
+                                    <h3 class="font-semibold text-gray-800 mt-1 group-hover:text-orange-600">Hành trình của chị Lê Thị B</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Nội dung Bán hàng (Tích hợp Google Sheets) -->
+                <div id="ban-hang-content" class="content-tab">
+                    <div class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 rounded-lg" role="alert">
+                        <p class="font-bold">Dữ liệu Bán Hàng</p>
+                        <p>Dữ liệu Sell-In/Sell-Out được quản lý qua Google Sheets và hiển thị trong khung dưới đây.</p>
+                    </div>
+                    <iframe class="w-full h-[600px] mt-4 border rounded-lg" src="https://script.google.com/macros/s/AKfycbyUuZDvJoll8ONYOV11uc-aPUePGanqboqSFLByAlII-BpUEqy-_Z8HS-tj-AX7MyCe/exec?m=1" title="Dữ liệu bán hàng"></iframe>
+                </div>
+                
+                <!-- Nội dung Hình ảnh (Tích hợp Google Sheets) -->
+                <div id="hinh-anh-content" class="content-tab">
+                    <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded-lg" role="alert">
+                        <p class="font-bold">Thư viện Hình Ảnh</p>
+                        <p>Thư viện hình ảnh được quản lý qua Google Sheets và hiển thị ở đây bằng Google Apps Script.</p>
+                    </div>
+                    <iframe class="w-full h-[600px] mt-4 border rounded-lg" src="https://script.google.com/macros/s/AKfycbxaWxAQJj7kMUFxJEfvpTD8MoxUkp93ewt2_QRSP5trdMQXbtqJHjq2OTnc84MxXWJ9GA/exec?m=1" title="Thư viện hình ảnh"></iframe>
+                </div>
+
+                <!-- Nội dung Hoạt động (Tích hợp Google Sheets) -->
+                <div id="hoat-dong-content" class="content-tab">
+                    <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-lg" role="alert">
+                        <p class="font-bold">Danh sách Hoạt Động</p>
+                        <p>Danh sách các hoạt động được lấy từ Google Sheets và hiển thị ở đây bằng Google Apps Script.</p>
+                    </div>
+                    <iframe class="w-full h-[600px] mt-4 border rounded-lg" src="about:blank" title="Danh sách hoạt động"></iframe>
+                </div>
+
+                <!-- Nội dung Đào tạo -->
+                <div id="dao-tao-content" class="content-tab">
+                    <div class="flex h-full bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
+                        <!-- Sidebar Trái (Thu hẹp lại) -->
+                        <div class="w-56 bg-gray-800 text-white p-5 flex flex-col space-y-2 flex-shrink-0">
+                            <h2 class="font-bold text-lg mb-4 px-2">Danh mục</h2>
+                            <a href="#" class="flex items-center space-x-3 p-2 rounded hover:bg-gray-700 transition-colors">
+                                <i class="fas fa-book w-5 text-center"></i>
+                                <span>Kiến thức sản phẩm</span>
+                            </a>
+                            <a href="#" class="flex items-center space-x-3 p-2 rounded hover:bg-gray-700 transition-colors">
+                                <i class="fas fa-landmark w-5 text-center"></i>
+                                <span>Văn hoá & Quy định</span>
+                            </a>
+                            <a href="#" class="flex items-center justify-between p-2 rounded hover:bg-gray-700 transition-colors">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-layer-group w-5 text-center"></i>
+                                    <span>Học theo chuyên đề</span>
+                                </div>
+                                <i class="fas fa-plus text-xs"></i>
+                            </a>
+                            <a href="#" class="flex items-center space-x-3 p-2 rounded hover:bg-gray-700 transition-colors">
+                                <i class="fas fa-chart-line w-5 text-center"></i>
+                                <span>Kỹ năng bán hàng</span>
+                            </a>
+                            <a href="#" class="flex items-center space-x-3 p-2 rounded hover:bg-gray-700 transition-colors">
+                                <i class="fas fa-list-alt w-5 text-center"></i>
+                                <span>Danh sách bài học</span>
+                            </a>
+                            <a href="#" class="flex items-center space-x-3 p-2 rounded hover:bg-gray-700 transition-colors">
+                                <i class="fas fa-poll w-5 text-center"></i>
+                                <span>Kết quả</span>
+                            </a>
+                        </div>
+                
+                        <!-- Nội dung Chính -->
+                        <div class="flex-1 p-8 overflow-y-auto">
+                            <!-- Breadcrumb -->
+                            <p class="text-sm text-gray-500 mb-4">
+                                Training > <span class="font-semibold text-gray-700">Training Online</span>
+                            </p>
+                
+                            <!-- Header -->
+                            <div class="flex justify-between items-center mb-6">
+                                <h1 class="text-3xl font-bold text-gray-800">ONLINE TRAINING</h1>
+                                <div class="flex items-center space-x-2">
+                                    <input type="text" placeholder="Nhập tên bài học..." class="w-72 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500">
+                                    <button class="bg-orange-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-orange-600 transition-colors">
+                                        Tìm kiếm
+                                    </button>
+                                </div>
+                            </div>
+                
+                            <!-- Banner Slider -->
+                            <div class="mt-8">
+                                 <img src="https://raw.githubusercontent.com/vuhuythanh/tichdiem/refs/heads/main/logo%20YADEA.png" alt="YADEA Logo" class="h-10 mb-4">
+                                <div class="relative w-full rounded-lg overflow-hidden shadow-lg">
+                                    <img src="https://placehold.co/1000x450/F3F4F6/333333?text=YADEA+VoltGuard+Series" alt="Training Banner" class="w-full h-auto">
+                                    <!-- Dots -->
+                                    <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2">
+                                        <span class="block w-3 h-3 bg-white rounded-full cursor-pointer ring-2 ring-offset-2 ring-offset-gray-800 ring-white"></span>
+                                        <span class="block w-3 h-3 bg-white/50 rounded-full cursor-pointer"></span>
+                                        <span class="block w-3 h-3 bg-white/50 rounded-full cursor-pointer"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                             <!-- Danh sách bài học -->
+                            <div class="mt-12">
+                                <h2 class="text-2xl font-bold text-gray-800 mb-6">Tất cả bài học</h2>
+                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                                    <!-- Card bài học 1 -->
+                                    <div class="border border-gray-200 rounded-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 group cursor-pointer">
+                                        <img src="https://placehold.co/400x250/FEF2F2/DC2626?text=VoltGuard" alt="Course 1" class="w-full h-32 object-cover">
+                                        <div class="p-4">
+                                            <h3 class="font-semibold text-gray-800 group-hover:text-orange-600">Sản phẩm: YADEA VoltGuard</h3>
+                                            <p class="text-xs text-gray-500 mt-2">Thời lượng: 45 phút</p>
+                                        </div>
+                                    </div>
+                                    <!-- Card bài học 2 -->
+                                    <div class="border border-gray-200 rounded-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 group cursor-pointer">
+                                        <img src="https://placehold.co/400x250/EFF6FF/3B82F6/FFFFFF?text=Orla" alt="Course 2" class="w-full h-32 object-cover">
+                                        <div class="p-4">
+                                            <h3 class="font-semibold text-gray-800 group-hover:text-orange-600">Sản phẩm: YADEA Orla</h3>
+                                            <p class="text-xs text-gray-500 mt-2">Thời lượng: 30 phút</p>
+                                        </div>
+                                    </div>
+                                    <!-- Card bài học 3 -->
+                                    <div class="border border-gray-200 rounded-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 group cursor-pointer">
+                                        <img src="https://placehold.co/400x250/F0F9FF/0EA5E9?text=Kỹ+Năng" alt="Course 3" class="w-full h-32 object-cover">
+                                        <div class="p-4">
+                                            <h3 class="font-semibold text-gray-800 group-hover:text-orange-600">Kỹ năng mềm: Chăm sóc khách hàng</h3>
+                                            <p class="text-xs text-gray-500 mt-2">Thời lượng: 1 giờ</p>
+                                        </div>
+                                    </div>
+                                    <!-- Card bài học 4 -->
+                                    <div class="border border-gray-200 rounded-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 group cursor-pointer">
+                                        <img src="https://placehold.co/400x250/F5F5F5/4B5563?text=Quy+Trình" alt="Course 4" class="w-full h-32 object-cover">
+                                        <div class="p-4">
+                                            <h3 class="font-semibold text-gray-800 group-hover:text-orange-600">Quy trình: Xử lý khiếu nại</h3>
+                                            <p class="text-xs text-gray-500 mt-2">Thời lượng: 25 phút</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const loginPage = document.getElementById('login-page');
+        const dashboardPage = document.getElementById('dashboard-page');
+        const loginForm = document.getElementById('login-form');
+
+        loginForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            // Chuyển trang sau khi đăng nhập (hiện tại chưa kiểm tra username/password)
+            loginPage.classList.add('hidden');
+            dashboardPage.classList.remove('hidden');
+            dashboardPage.classList.add('flex');
+            
+            // Kích hoạt tab Trang chủ mặc định
+            document.getElementById('trang-chu-content').classList.add('initial-active-tab');
+        });
+        
+        const navLinks = document.querySelectorAll('.nav-link');
+        const contentTabs = document.querySelectorAll('.content-tab');
+
+        navLinks.forEach(link => {
+            link.addEventListener('click', function(event) {
+                event.preventDefault();
+
+                // Bỏ active tất cả các link
+                navLinks.forEach(nav => nav.classList.remove('active'));
+                
+                // Active link được click
+                this.classList.add('active');
+
+                const targetId = this.getAttribute('data-target');
+                
+                // Ẩn tất cả các tab và loại bỏ class active mặc định
+                contentTabs.forEach(tab => {
+                    tab.style.display = 'none';
+                    tab.classList.remove('initial-active-tab');
+                });
+
+                // Hiển thị tab tương ứng
+                const targetTab = document.getElementById(targetId + '-content');
+                if(targetTab) {
+                    targetTab.style.display = 'block';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
