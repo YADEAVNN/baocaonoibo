@@ -1,0 +1,1519 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <title>Quản Lý Cửa Hàng — Mobile</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+  <style>
+    :root{--brand:#ff9800;--brand-2:#e65100;--bg:#fafafa;--card:#ffffff;--text:#222;--line:#e9e9e9;--primary-blue:#1f3b63;}
+    html,body{margin:0;height:100%;background:var(--bg);font-family:Roboto,sans-serif;color:var(--text)}
+    .wrap{max-width:760px;margin:0 auto;padding:12px}
+    .hidden{display:none!important}
+    .appbar{position:sticky;top:0;z-index:9;background:linear-gradient(90deg,var(--brand),var(--brand-2));color:#fff;
+box-shadow: 0 2px 5px rgba(0,0,0,.2);}
+    .appbar-inner{max-width:760px;margin:0 auto;padding:0 12px;display:flex;align-items:center;gap:12px;
+height: 56px;}
+    .appbar-logo { height: 28px; }
+    .me{margin-left:auto;font-size:14px;font-weight:500;opacity:.95}
+    .nav-dropdown-wrapper { position: relative; }
+    .nav-toggle { display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px; border-radius: 8px;
+transition: background-color .2s ease; }
+    .nav-toggle:hover { background-color: rgba(255,255,255,.1); }
+    .nav-title { font-size:18px;font-weight:800;margin:0; text-transform: uppercase; }
+    .nav-toggle svg { width: 20px; height: 20px; fill: #fff; transition: transform .2s ease; }
+    .nav-dropdown-wrapper.active .nav-toggle svg { transform: rotate(180deg); }
+    .dropdown-menu { display: none; position: absolute; top: calc(100% + 5px); left: 0; background-color: white; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,.15); list-style: none; padding: 8px 0; margin: 0; min-width: 220px; z-index: 1000; border: 1px solid #eee;}
+    .nav-dropdown-wrapper.active .dropdown-menu { display: block; }
+    .dropdown-item { padding: 12px 16px; color: var(--text); font-weight: 500; cursor: pointer; transition: background-color .2s ease; text-transform: uppercase; }
+    .dropdown-item:hover { background-color: #f5f5f5; }
+    .dropdown-item.active { background-color: #fff8e1; color: var(--brand-2); font-weight: 700;}
+    .card{background:var(--card);border-radius:14px;padding:16px;box-shadow:0 2px 10px rgba(0,0,0,.06);margin-top:12px}
+    .card .head{font-size:16px;font-weight:800;margin-bottom:8px;color:var(--brand-2); text-transform: uppercase;}
+    label{display:block;margin:8px 0 4px;font-weight:700;font-size:14px;}
+    input,select{width:100%;box-sizing:border-box;padding:12px 14px;font-size:14px;border:1px solid #ccc;border-radius:12px;background:#fff;transition:box-shadow .2s ease}
+    input:focus,select:focus{box-shadow:0 0 0 3px rgba(255,152,0,.25);outline:none;border-color:var(--brand)}
+    .btn{display:inline-block;width:100%;padding:12px 14px;border-radius:12px;background:linear-gradient(90deg,var(--brand),var(--brand-2));color:#fff;font-weight:800;text-align:center;cursor:pointer;font-size:16px;margin-top:12px;border:none;
+box-shadow: 0 2px 8px rgba(0,0,0,.1);}
+    .btn:disabled{opacity:.6; background: #ccc; cursor: not-allowed;}.btn-line{background:#fff;color:#333;border:1px solid #ddd;
+box-shadow: none;}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    @media (max-width:420px){.row{grid-template-columns:1fr}}
+    .login-outer{min-height:100dvh;display:flex;align-items:center;justify-content:center;background:#d96520}
+    .login-card{width:min(560px,92vw);background:#fff;border-radius:14px;padding:24px 22px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+    .login-title{font-size:28px;font-weight:800;color:var(--primary-blue);margin:6px 0 2px}.login-sub{color:#7a8aa0;margin-bottom:14px}
+    .login-row{display:grid;grid-template-columns:80px 1fr;gap:16px;align-items:center}
+    .login-logo{width:68px;height:68px;border-radius:14px;background:#fff;display:flex;align-items:center;justify-content:center}
+    .login-logo img{height:48px}
+    .login-actions{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
+    .link{color:#fff;text-decoration:none;font-weight:500}.link:hover{text-decoration:underline}
+    .link-logout { font-size: 13px; font-weight: 500; padding: 6px 12px; background-color: rgba(255,255,255,0.1); border-radius: 8px; text-decoration: none; line-height: 1; transition: background-color .2s ease; }
+    .link-logout:hover { background-color: rgba(255,255,255,0.2); text-decoration: none; }
+    .desktop-warning { text-align: center; padding: 24px; background-color: #fffde7; border: 1px solid #fff59d; border-radius: 12px; font-weight: 500; color: #7f5f00;}
+    .quiz-question { margin-bottom: 16px; }
+    .quiz-question p { font-weight: 700; margin: 0 0 8px; }
+    .quiz-options label { display: block; background: #f7f7f7; padding: 12px; border-radius: 8px; margin-bottom: 8px; font-weight: 500; cursor: pointer; border: 2px solid transparent; }
+    .quiz-options input[type="radio"] { display: none; }
+    .quiz-options input[type="radio"]:checked + label { border-color: var(--brand); background-color: #fff8e1; }
+    .quiz-error { color: #c0392b; font-weight: bold; margin-top: 10px; text-align: center; }
+    .slot-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .slot{border:2px dashed #e0e0e0;border-radius:12px;padding:8px;background:#fff;position:relative}
+    .slot .label{font-size:12px;font-weight:800;color:#555;margin-bottom:6px}
+    .ph{height:120px;border-radius:8px;background:#f6f6f6;display:flex;align-items:center;justify-content:center;color:#777;font-weight:700}
+    .slot img{width:100%;height:120px;object-fit:cover;border-radius:8px;display:none}
+    .slot.captured{border-color:#a5d6a7;background:#f1faee}
+    .slot.captured img{display:block}.slot.captured .ph{display:none}
+    .rm{position:absolute;top:6px;right:6px;background:#fff;border:1px solid #ddd;border-radius:999px;width:24px;height:24px;line-height:22px;text-align:center;cursor:pointer;display:none}
+    .slot.captured .rm{display:block}
+    .kpi-wrap{margin:10px 0 16px;border:1px solid #eee;border-radius:14px;padding:10px;background:#fff}
+    .kpi-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+    .kpi-title{font-weight:700;color:#333}.kpi-nums{font-size:12px;color:#666}
+    .progress{width:100%;height:14px;border-radius:999px;background:#f3f4f6;overflow:hidden;border:1px solid #e5e7eb}
+    .progress-fill{height:100%;width:0%;background:linear-gradient(90deg,#ffe082,#ffca28,#ffb300,#ffa000,#ff8f00,#ff6f00);transition:width .4s ease}
+    table{width:100%;border-collapse:collapse}
+    thead th{background:#fafafa;border-bottom:1px solid #eee;padding:10px;text-align:left;font-size:13px; font-weight: 700; color: #555;}
+    tbody td{padding:10px;border-bottom:1px solid #f1f1f1;vertical-align:middle;font-size:13px}
+    .filter-actions { display: grid; grid-template-columns: 1fr 1.5fr 1fr; gap: 8px; margin-top: 12px; }
+    tr.status-done{background:#fff8e1}
+    td .status-badge { display: inline-block; padding: 4px 10px; border-radius: 999px; font-weight: 600; font-size: 12px; }
+    .status-badge.done { background-color: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9;}
+    .status-badge.todo { background:#f5f5f5; border:1px solid #eee; color:#777; }
+    #view-quick .card .head{color:var(--primary-blue)}
+    #view-quick .kpi-value{font-size:24px;font-weight:800;color:#333}
+    #view-quick #qPctFill{background:linear-gradient(90deg, #ffd54f, #ffb300, #ff8f00)}
+    .canvas-wrap{background:#fff;border:1px solid #eee;border-radius:12px;padding:16px}
+    .rank-list .row-rank{display:flex;justify-content:space-between;padding:8px 4px;border-bottom:1px dashed #eee}
+    .rank-list .row-rank:last-child{border-bottom:none}
+    .rank-left{display:flex;gap:8px;align-items:center;font-weight:500;}
+    .rank-badge{flex-shrink:0;width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;background:#9e9e9e}
+    .rank-1{background:#e65100}.rank-2{background:#ef6c00}.rank-3{background:#ff9800}
+    .link-forgot{color:#1f5de2;}
+    .category-button { display: flex; align-items: center; gap: 16px; padding: 16px; background-color: #fff; border: 1px solid #eee; border-radius: 12px; margin-bottom: 12px; cursor: pointer; transition: transform .2s ease, box-shadow .2s ease; }
+    .category-button:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+    .category-icon { width: 48px; height: 48px; flex-shrink: 0; border-radius: 50%; object-fit: cover; }
+    .category-title { font-size: 16px; font-weight: 700; color: #333; }
+    .lesson-list-header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+    .lesson-list-title { font-size: 20px; font-weight: 800; color: var(--primary-blue); margin:0; }
+    .back-btn { padding: 8px 12px; font-size: 14px; font-weight: 700; cursor: pointer; border-radius: 8px; }
+    .lesson-card { display: flex; align-items: center; gap: 12px; background: #fff; border-bottom: 1px solid #f0f0f0; padding: 12px 4px; }
+    .lesson-thumbnail { width: 100px; height: 75px; flex-shrink: 0; border-radius: 8px; background-size: cover; background-position: center; background-repeat: no-repeat; }
+    .lesson-details { flex-grow: 1; }
+    .lesson-title-row { display: flex; justify-content: space-between; align-items: flex-start; }
+    .lesson-title { font-weight: 700; margin-bottom: 4px; }
+    .lesson-new-badge { background-color: #ff4757; color: white; font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 4px; margin-left: 8px; }
+    .vehicle-row.row { grid-template-columns: 1fr auto auto; gap: 8px; align-items: center; }
+    .sales-vehicle-row { display: grid; grid-template-columns: 1fr auto 1fr auto; gap: 8px; align-items: center; margin-bottom: 8px; }
+    .sales-vehicle-row .subtotal { font-size: 12px; font-weight: 700; color: #333; text-align: right; white-space: nowrap; }
+    .report-tabs { display: flex; gap: 8px; border-bottom: 1px solid #ddd; margin-bottom: 12px; }
+    .report-tab { padding: 10px 16px; font-weight: 700; cursor: pointer; border-bottom: 3px solid transparent; }
+    .report-tab.active { color: var(--brand-2); border-bottom-color: var(--brand-2); }
+    .muted { color: #6c757d; }
+    .target-card { border: 1px solid #eee; border-radius: 12px; padding: 12px; margin-bottom: 12px; background: #fff; }
+    .target-card .shop-title { font-weight: 700; font-size: 15px; margin-bottom: 4px; }
+    .target-card .shop-info { font-size: 12px; color: #666; margin-bottom: 10px; }
+    .progress-label { display: flex; justify-content: space-between; font-size: 12px; font-weight: 600; margin-bottom: 4px; }
+    .progress-bar-bg { background-color: #e9ecef; border-radius: 99px; height: 18px; overflow: hidden; }
+    .progress-bar-fill { height: 100%; text-align: center; color: white; font-size: 11px; font-weight: 700; line-height: 18px; white-space: nowrap; transition: width .6s ease; }
+    .progress-si { background: linear-gradient(90deg, #ffc107, #ff9800); }
+    .progress-so { background: linear-gradient(90deg, #4caf50, #2e7d32); }
+    #set-targets-table { margin-top: 16px; }
+    #set-targets-table .head { font-size: 14px; margin-bottom: 8px; }
+    #set-targets-table td { text-align: right; }
+    #set-targets-table td:first-child { text-align: left; }
+  </style>
+</head>
+<body>
+
+<div id="quizView" class="login-outer hidden">
+    <div class="login-card">
+        <div class="login-title">Bài kiểm tra hằng ngày</div>
+        <div class="login-sub">Vui lòng trả lời đúng các câu hỏi sau để tiếp tục.</div>
+        <form id="quizForm" style="margin-top:12px">
+            <div id="quizContainer"><p>Đang tải câu hỏi...</p></div>
+            <div id="quizError" class="quiz-error hidden"></div>
+            <button class="btn" type="submit" disabled>Nộp bài</button>
+        </form>
+    </div>
+</div>
+
+<div id="loginView" class="login-outer">
+    <div class="login-card">
+        <div class="login-row">
+            <div class="login-logo"><img src="https://raw.githubusercontent.com/vuhuythanh/tichdiem/refs/heads/main/logo%20YADEA.png" alt="YADEA"></div>
+            <div>
+                <div class="login-title">Đăng nhập</div>
+                <div class="login-sub">Đăng nhập vào tài khoản của bạn</div>
+            </div>
+        </div>
+        <form id="loginForm" style="margin-top:12px">
+            <label>Tên đăng nhập</label><input id="username" autocomplete="username" placeholder="Nhập tên đăng nhập">
+            <label style="margin-top:8px">Mật khẩu</label><input id="password" type="password" autocomplete="current-password" placeholder="Mật khẩu">
+            <div class="login-actions">
+                <a href="javascript:void(0)" class="link link-forgot" onclick="forgotPw()">Quên mật khẩu?</a>
+                <button class="btn" type="submit" style="width:180px;margin:0">Đăng nhập</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="appView" class="hidden">
+    <div class="appbar">
+        <div class="appbar-inner">
+            <img src="https://raw.githubusercontent.com/vuhuythanh/tichdiem/refs/heads/main/logo%20YADEA.png" alt="YADEA Logo" class="appbar-logo">
+            <div class="nav-dropdown-wrapper" id="navWrapper">
+                <div class="nav-toggle" onclick="toggleNavMenu()">
+                    <h1 class="nav-title" id="navTitle"></h1>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" style="width:20px; height:20px; fill:currentColor;"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                </div>
+                <div class="dropdown-menu" id="navMenu">
+                    <div class="dropdown-item" data-tab-name="settargets" data-tab-title="THIẾT LẬP TARGET" onclick="switchTab('settargets', this)">THIẾT LẬP TARGET</div>
+                    <div class="dropdown-item" data-tab-name="upload" data-tab-title="KIỂM TRA CỬA HÀNG" onclick="switchTab('upload', this)">KIỂM TRA CỬA HÀNG</div>
+                    <div class="dropdown-item" data-tab-name="history" data-tab-title="LỊCH SỬ KIỂM TRA" onclick="switchTab('history', this)">LỊCH SỬ KIỂM TRA</div>
+                    <div class="dropdown-item" data-tab-name="progress" data-tab-title="THEO DÕI TIẾN ĐỘ" onclick="switchTab('progress', this)">THEO DÕI TIẾN ĐỘ</div>
+                    <div class="dropdown-item" data-tab-name="quick" data-tab-title="TỔNG QUAN" onclick="switchTab('quick', this)">TỔNG QUAN</div>
+                    <div class="dropdown-item" data-tab-name="report" data-tab-title="BÁO CÁO SỐ" onclick="switchTab('report', this)">BÁO CÁO SỐ</div>
+                    <div class="dropdown-item" data-tab-name="stockin" data-tab-title="NHẬP KHO (S.I)" onclick="switchTab('stockin', this)">NHẬP KHO (S.I)</div>
+                    <div class="dropdown-item" data-tab-name="salesout" data-tab-title="BÁN HÀNG (S.O)" onclick="switchTab('salesout', this)">BÁN HÀNG (S.O)</div>
+                    <div class="dropdown-item" data-tab-name="training" data-tab-title="Training Online" onclick="switchTab('training', this)">Training Online</div>
+                </div>
+            </div>
+            <div id="meInfo" class="me"></div>
+            <a href="javascript:void(0)" class="link link-logout" onclick="logout()">Đăng xuất</a>
+        </div>
+    </div>
+    <div class="wrap">
+        <div id="view-settargets" class="card hidden">
+            <div class="head">THIẾT LẬP TARGET BÁN HÀNG</div>
+            <label>Chọn tháng</label>
+            <input type="month" id="st-month" onchange="loadTargetsForMonth()">
+
+            <div style="border: 1px solid #eee; border-radius: 12px; padding: 16px; margin-top: 16px;">
+                <div class="head" style="color:var(--primary-blue); font-size: 14px;">THÊM / CẬP NHẬT TARGET CHO SALE</div>
+                <label>Chọn Khu vực</label>
+                <select id="st-region-select" onchange="loadSalesForRegion()"></select>
+                <div>
+                    <label>Chọn Sale</label>
+                    <select id="st-sale-select"></select>
+                </div>
+                <div class="row">
+                    <div>
+                        <label>Chỉ tiêu Nhập kho (S.I)</label>
+                        <input type="number" id="st-target-si" placeholder="Số xe nhập">
+                    </div>
+                    <div>
+                        <label>Chỉ tiêu Bán hàng (S.O)</label>
+                        <input type="number" id="st-target-so" placeholder="Số xe bán">
+                    </div>
+                </div>
+                <button class="btn" onclick="saveTarget(this)">Lưu Target</button>
+            </div>
+            
+            <div id="set-targets-table">
+                 <div class="head" style="color:var(--primary-blue); margin-top: 24px;">CÁC TARGET ĐÃ THIẾT LẬP CHO THÁNG</div>
+                 <div id="st-list-container">
+                    <p class="muted" style="text-align:center;">Đang tải...</p>
+                 </div>
+            </div>
+        </div>
+
+        <div id="view-upload" class="card hidden">
+             <div class="head">Chụp đủ 12 vị trí</div>
+            <div id="upload-content">
+                <label>DVN</label>
+               <input id="upDVN" placeholder="Mã DVN" onblur="lookupDVN()" onkeyup="if(event.key==='Enter')lookupDVN()">
+                <div class="row" style="margin-top:8px"><div><label>Ngày kiểm tra</label><input type="date" id="upDate"></div><div><label>Shop</label><input id="upShop" readonly></div></div>
+                <div class="row"><div><label>Khu vực</label><input id="upRegion" readonly></div><div><label>Tỉnh</label><input id="upProvince" readonly></div></div>
+                <div class="row"><div><label>Sale</label><input id="upSale" readonly></div><div><label>Họ & Tên (tùy chọn)</label><input id="upEmp"></div></div>
+                <div class="row"><div><label>SĐT (tùy chọn)</label><input id="upPhone"></div><div></div></div>
+                <div class="row" style="margin-top:8px"><div><label>Điểm</label><input id="upPoints" type="number" min="0" max="100"></div><div><label>Ghi chú</label><input id="upNote"></div></div>
+                <div class="row"><div><label>S.I (Số nhập)</label><input id="upSI" type="number" min="0"></div><div><label>S.O (Số bán)</label><input id="upSO" type="number" min="0"></div></div>
+                <div class="slot-grid" id="slotGrid" style="margin-top:10px"></div>
+                <div class="muted" style="margin-top:6px; font-size: 12px;">• Chạm từng ô để mở camera. Cần đủ 12 ảnh.</div>
+                <button id="btnUpload" class="btn" style="margin-top:12px" onclick="doUpload()">Tải lên hệ thống</button>
+            </div>
+        </div>
+        <div id="view-history" class="card hidden">
+            <div class="head">LỊCH SỬ KIỂM TRA</div>
+            <div class="row"><div><label>Từ ngày</label><input type="date" id="hFrom"></div><div><label>Đến ngày</label><input type="date" id="hTo"></div></div>
+            <div class="row"><div><label>Khu vực</label><select id="hRegion" onchange="handleRegionChange('h')"><option value="">— Tất cả —</option></select></div><div><label>Tỉnh</label><select id="hProvince"><option value="">— Tất cả —</option></select></div></div>
+            <div class="row"><div><label>Sale</label><select id="hSale"><option value="">— Tất cả —</option></select></div><div><label>Mã SVN</label><select id="hSVN"><option value="">— Tất cả —</option></select></div></div>
+            <div class="row"><div><label>Mã DVN</label><input id="hDVN" placeholder="VD: DVN690003"></div><div><label>Tên Shop</label><input id="hShop" placeholder="Gõ một phần tên shop"></div></div>
+            <div class="filter-actions" style="grid-template-columns: 1fr 1fr; margin-top: 12px;"><button class="btn-line btn" onclick="resetHistory()">Xóa lọc</button><button class="btn" onclick="loadHistory()">Lọc</button></div>
+            <div style="margin-top:12px; overflow-x: auto;"><table id="tblHistory"><thead><tr><th>Ngày</th><th>Khu vực</th><th>Tỉnh</th><th>Sale</th><th>DVN - Shop</th><th>Điểm</th><th>Ghi chú</th><th>Link ảnh</th></tr></thead><tbody><tr><td colspan="8">Chưa có dữ liệu</td></tr></tbody></table></div>
+        </div>
+        <div id="view-progress" class="card hidden">
+            <div class="head">THEO DÕI TIẾN ĐỘ</div>
+            <div class="row"><div><label>Tháng</label><input id="pMonth" type="month"></div><div><label>Tình trạng</label><select id="pStatus"><option value="">Tất cả</option><option value="done">Hoàn thành</option><option value="todo">Chưa làm</option></select></div></div>
+            <div class="row"><div><label>Khu vực</label><select id="pRegion" onchange="handleRegionChange('p')"><option value="">— Tất cả —</option></select></div><div><label>Tỉnh</label><select id="pProvince"><option value="">— Tất cả —</option></select></div></div>
+            <div class="row"><div><label>Sale</label><select id="pSale"><option value="">— Tất cả —</option></select></div><div><label>Mã SVN</label><select id="pSVN"><option value="">— Tất cả —</option></select></div></div>
+            <label>Mã DVN</label><input id="pDVN" placeholder="Tìm theo mã DVN">
+            <div class="filter-actions"><button class="btn btn-line" onclick="resetProgress()">Xóa lọc</button><button class="btn" onclick="loadProgress()">Lọc</button><button class="btn btn-line" onclick="exportCsv('progress', this)">Xuất CSV</button></div>
+            <div class="kpi-wrap"><div class="kpi-head"><div class="kpi-title">Mức độ hoàn thành</div><div id="kpi-nums" class="kpi-nums">0 / 0 (0%)</div></div><div class="progress"><div id="kpi-fill" class="progress-fill"></div></div></div>
+            <div style="margin-top:12px; overflow-x: auto;"><table id="tblProgress"><thead><tr><th>Khu vực</th><th>Tỉnh</th><th>Sale</th><th>DVN</th><th>Shop</th><th>Ngày cập nhật</th><th>Trạng thái</th></tr></thead><tbody><tr><td colspan="7">Chưa có dữ liệu</td></tr></tbody></table></div>
+        </div>
+        <div id="view-quick" class="card hidden">
+            <div class="head">TỔNG QUAN</div>
+            <div class="row"><div><label>Tháng</label><input id="qMonth" type="month"></div><div><label>Khu vực</label><select id="qRegion" onchange="handleRegionChange('q')"><option value="">— Tất cả —</option></select></div></div>
+            <div class="row"><div><label>Tỉnh</label><select id="qProvince"><option value="">— Tất cả —</option></select></div><div><label>Sale</label><select id="qSale"><option value="">— Tất cả —</option></select></div></div>
+            <div class="row"><div><label>Mã SVN</label><select id="qSVN"><option value="">— Tất cả —</option></select></div><div><label>Mã DVN</label><input id="qDVN" placeholder="Tìm theo mã DVN"></div></div>
+            <div class="filter-actions" style="grid-template-columns: 1fr 1fr;"><button class="btn" onclick="loadQuickV2()">Lọc</button><button class="btn btn-line" onclick="exportCsv('quick', this)">Xuất CSV</button></div>
+            <div class="row" style="margin-top:12px"><div class="card"><div class="head">Số lượng cửa hàng đã hoàn thành</div><div id="qTotal" class="kpi-value">0</div></div><div class="card"><div class="head">% hoàn thành</div><div id="qPct" class="kpi-value">0%</div><div class="progress" style="margin-top:8px"><div id="qPctFill" class="progress-fill"></div></div></div></div>
+            <div class="card" style="margin-top:12px;"><div class="head">Điểm trung bình / shop</div><div id="qAvg" class="kpi-value">0</div></div>
+            <div class="canvas-wrap" style="margin-top:12px;"><div class="head" style="color: var(--primary-blue)">Phân bố lỗi</div><canvas id="qErrBar"></canvas></div>
+            <div class="card" style="margin-top:12px;"><div class="head" style="color: var(--primary-blue)">Xếp hạng nhân viên theo tỉ lệ hoàn thành</div><div id="qRanking" class="rank-list muted">—</div></div>
+            <div class="card" style="margin-top:12px;">
+                <div class="head" style="color: var(--primary-blue)">Top 10 cửa hàng điểm cao & nhanh nhất</div>
+                <div id="qTopShops" class="rank-list muted">—</div>
+            </div>
+        </div>
+
+        <div id="view-training" class="card hidden">
+            <div id="training-category-view">
+                <div class="head">Training Online</div>
+                <div id="category-list-container"></div>
+            </div>
+            <div id="training-lesson-view" class="hidden">
+                <div class="lesson-list-header">
+                    <button class="btn-line back-btn" onclick="showTrainingCategories()">‹ Quay lại</button>
+                    <h2 id="lesson-list-title" class="lesson-list-title"></h2>
+                </div>
+                <div id="lesson-card-list"></div>
+            </div>
+        </div>
+
+        <div id="view-stockin" class="card hidden">
+            <div class="head">NHẬP LIỆU NHẬP KHO (S.I)</div>
+            <label>Ngày nhập</label>
+            <input type="date" id="siDate">
+            <label>Mã DVN</label>
+            <input id="siDVN" placeholder="Nhập mã DVN rồi bấm ra ngoài" onblur="lookupDVNForStockIn()">
+            <label>Tên Shop</label>
+            <input id="siShop" readonly>
+            <div class="row">
+                <div><label>Mã SVN</label><input id="siSVN" readonly></div>
+                <div><label>Tên Sale</label><input id="siSale" readonly></div>
+            </div>
+            <div class="row">
+                <div><label>Khu vực</label><input id="siRegion" readonly></div>
+                <div><label>Tỉnh</label><input id="siProvince" readonly></div>
+            </div>
+            <div style="margin: 16px 0 8px; font-weight: 700; font-size:14px;">Danh Sách Xe Nhập</div>
+            <div id="stockInVehicleList"></div>
+            <button class="btn btn-line" onclick="addVehicleRow('stockin')" style="width: auto; padding: 8px 16px; margin-top: 8px;">+ Thêm dòng</button>
+            <hr style="border:none; border-top:1px solid #eee; margin: 16px 0;">
+            <button class="btn" onclick="doSubmitStockIn(this)">Gửi lên hệ thống</button>
+        </div>
+
+        <div id="view-salesout" class="card hidden">
+            <div class="head">NHẬP LIỆU BÁN HÀNG (S.O)</div>
+            <label>Ngày bán</label>
+            <input type="date" id="soDate">
+            <label>Mã DVN</label>
+            <input id="soDVN" placeholder="Nhập mã DVN rồi bấm ra ngoài" onblur="lookupDVNForSalesOut()">
+             <label>Họ & Tên (PG/Nhân viên)</label>
+            <input id="soPgName" placeholder="Nhập tên (không bắt buộc)">
+            <label>Tên Shop</label>
+            <input id="soShop" readonly>
+            <div class="row">
+                <div><label>Mã SVN</label><input id="soSVN" readonly></div>
+                <div><label>Tên Sale</label><input id="soSale" readonly></div>
+            </div>
+             <div class="row">
+                <div><label>Khu vực</label><input id="soRegion" readonly></div>
+                <div><label>Tỉnh</label><input id="soProvince" readonly></div>
+            </div>
+            <div style="margin: 16px 0 8px; font-weight: 700; font-size:14px;">Danh Sách Xe Bán</div>
+            <div id="salesOutVehicleList"></div>
+            <button class="btn btn-line" onclick="addVehicleRow('salesout')" style="width: auto; padding: 8px 16px; margin-top: 8px;">+ Thêm dòng</button>
+            <hr style="border:none; border-top:1px solid #eee; margin: 16px 0;">
+            <button class="btn" onclick="doSubmitSalesOut(this)">Gửi lên hệ thống</button>
+        </div>
+
+        <div id="view-report" class="card hidden">
+            <div class="report-tabs">
+                <div id="tab-si-report" class="report-tab active" onclick="switchReportTab('si', this)">NHẬP KHO (S.I)</div>
+                <div id="tab-so-report" class="report-tab" onclick="switchReportTab('so', this)">BÁN HÀNG (S.O)</div>
+            </div>
+
+            <div id="si-report-content">
+                <div class="head" style="color:var(--primary-blue)">BÁO CÁO NHẬP KHO</div>
+                <div class="row" id="si-filter-regions">
+                    <div><label>Khu vực</label><select id="rgnSI" onchange="handleReportRegionChange('si')"><option value="">— Tất cả —</option></select></div>
+                    <div><label>Tỉnh</label><select id="tinhSI"><option value="">— Tất cả —</option></select></div>
+                </div>
+                <div class="row">
+                    <div><label>Sale</label><select id="saleSI"><option value="">— Tất cả —</option></select></div>
+                    <div><label>Mã SVN</label><select id="siSVN_filter" onchange="handleSvnChange('si')"><option value="">— Tất cả —</option></select></div>
+                </div>
+                <div class="row">
+                    <div><label>Mã DVN</label><select id="siDVN_filter" onchange="handleDvnChange('si')"><option value="">— Tất cả —</option></select></div>
+                    <div><label>Tên Shop</label><input id="siShop_filter" placeholder="Tìm theo tên Shop"></div>
+                </div>
+
+                <div class="filter-actions" style="grid-template-columns: 1fr 1fr; margin-top: 12px;">
+                    <button class="btn" onclick="fetchAndRenderSIReport()">Lọc</button>
+                    <button class="btn btn-line" onclick="exportStockInCsv(this)">Xuất CSV</button>
+                </div>
+                <hr style="border:none; border-top:1px solid #eee; margin: 16px 0;">
+                
+                <div id="si-target-report" style="margin-top: 16px;">
+                    <div class="card" id="si-progress-container">
+                        </div>
+                    <div class="card" style="margin-top:12px;">
+                        <div class="head" style="color: var(--primary-blue)">Xếp hạng S.I theo Khu vực</div>
+                        <div id="si-regional-ranking" class="rank-list muted">—</div>
+                    </div>
+                </div>
+                <div class="card" style="margin-top:12px">
+                    <div class="head">Sản lượng nhập 12 tháng qua</div>
+                    <canvas id="siBarChart"></canvas>
+                </div>
+                <div class="card" style="margin-top:12px;">
+                    <div class="head">Tỉ lệ model nhập trong tháng</div>
+                    <div class="row">
+                        <div><label>Chọn tháng</label><input type="month" id="monthSI" onchange="fetchAndRenderSIReport()"></div>
+                    </div>
+                    <canvas id="siPieChart" style="margin-top:10px; max-width: 300px; margin-left:auto; margin-right:auto;"></canvas>
+                </div>
+            </div>
+
+            <div id="so-report-content" class="hidden">
+                 <div class="head" style="color:var(--primary-blue)">BÁO CÁO BÁN HÀNG</div>
+                 <div class="row" id="so-filter-regions">
+                     <div><label>Khu vực</label><select id="rgnSO" onchange="handleReportRegionChange('so')"><option value="">— Tất cả —</option></select></div>
+                     <div><label>Tỉnh</label><select id="tinhSO"><option value="">— Tất cả —</option></select></div>
+                 </div>
+                 <div class="row">
+                    <div><label>Sale</label><select id="saleSO"><option value="">— Tất cả —</option></select></div>
+                    <div><label>Mã SVN</label><select id="soSVN_filter" onchange="handleSvnChange('so')"><option value="">— Tất cả —</option></select></div>
+                 </div>
+                 <div class="row">
+                    <div><label>Mã DVN</label><select id="soDVN_filter" onchange="handleDvnChange('so')"><option value="">— Tất cả —</option></select></div>
+                    <div><label>Tên Shop</label><input id="soShop_filter" placeholder="Tìm theo tên Shop"></div>
+                 </div>
+                 <div class="filter-actions" style="grid-template-columns: 1fr 1fr; margin-top: 12px;">
+                     <button class="btn" onclick="fetchAndRenderSOReport()">Lọc</button>
+                     <button class="btn btn-line" onclick="exportSalesOutCsv(this)">Xuất CSV</button>
+                 </div>
+                 <hr style="border:none; border-top:1px solid #eee; margin: 16px 0;">
+                 
+                 <div id="so-target-report" style="margin-top: 16px;">
+                    <div class="card" id="so-progress-container">
+                        </div>
+                    <div class="card" style="margin-top:12px;">
+                        <div class="head" style="color: var(--primary-blue)">Xếp hạng S.O theo Khu vực</div>
+                        <div id="so-regional-ranking" class="rank-list muted">—</div>
+                    </div>
+                </div>
+                <div class="card" style="margin-top:12px">
+                     <div class="head">Sản lượng bán 12 tháng qua</div>
+                     <canvas id="soBarChart"></canvas>
+                 </div>
+                 <div class="card" style="margin-top:12px;">
+                     <div class="head">Tỉ lệ số lượng model bán trong tháng</div>
+                     <div class="row">
+                         <div><label>Chọn tháng</label><input type="month" id="monthSO" onchange="fetchAndRenderSOReport()"></div>
+                     </div>
+                     <canvas id="soPieChart" style="margin-top:10px; max-width: 300px; margin-left:auto; margin-right:auto;"></canvas>
+                 </div>
+                 <div class="card" style="margin-top:12px;">
+                     <div class="head">Doanh thu 12 tháng qua</div>
+                     <canvas id="soRevenueBarChart"></canvas>
+                 </div>
+                 <div class="card" style="margin-top:12px;">
+                     <div class="head">Tỉ lệ doanh thu model bán trong tháng</div>
+                     <canvas id="soRevenuePieChart" style="margin-top:10px; max-width: 300px; margin-left:auto; margin-right:auto;"></canvas>
+                 </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<input type="file" id="cameraInput" accept="image/*" capture="environment" hidden>
+
+<script>
+let AUTH=null, META={}, USER_ROLE='guest', ME_INFO = {};
+let PRODUCT_LIST = [];
+let SI_BAR_CHART = null, SI_PIE_CHART = null;
+let SO_BAR_CHART = null, SO_PIE_CHART = null;
+let SO_REVENUE_BAR_CHART = null, SO_REVENUE_PIE_CHART = null;
+let EXISTING_TARGETS = {};
+
+const slots=new Array(12).fill(null);
+const CATEGORY_ICONS = {
+  'Kiến thức sản phẩm': 'https://i.imgur.com/your-icon1.png', 'Văn hóa & Quy định': 'https://i.imgur.com/your-icon2.png',
+  'Học theo chuyên đề': 'https://i.imgur.com/your-icon3.png', 'Kỹ năng bán hàng': 'https://i.imgur.com/your-icon4.png',
+  'default': 'https://i.imgur.com/default-icon.png'
+};
+const CATS=['Sơ đồ thực tế','Ngoài cửa hàng','Tổng quan bên trong','Khu vực trung tâm','Bên phải','Bên trái','Niêm yết giá','Trưng bày pin/battery','Quầy tiếp tân','Khu dịch vụ','Nhân viên','Khu vực nghỉ'];
+
+/* ===== LOGIC KHỞI ĐỘNG VÀ QUIZ MỚI ===== */
+document.addEventListener('DOMContentLoaded', () => {
+    Chart.register(ChartDataLabels);
+    const storedAuth = sessionStorage.getItem('__auth');
+    if (storedAuth) {
+        AUTH = storedAuth;
+        google.script.run.withSuccessHandler(res => {
+            if (res.completed) { showApp(); } else { loadDailyQuiz(true); }
+        }).withFailureHandler(err => {
+            alert(err.message);
+            logout();
+        }).checkQuizStatus(AUTH);
+    } else {
+        document.getElementById('loginView').classList.remove('hidden');
+    }
+});
+
+function loadDailyQuiz(isInsideApp) {
+    const view = document.getElementById('quizView');
+    const container = document.getElementById('quizContainer');
+    const btn = view.querySelector('button');
+    document.getElementById('loginView').classList.add('hidden');
+    document.getElementById('appView').classList.add('hidden');
+    view.classList.remove('hidden');
+    container.innerHTML = '<p>Đang tải câu hỏi...</p>';
+    btn.disabled = true;
+    google.script.run.withSuccessHandler(res => {
+        if (!res.questions || res.questions.length === 0) {
+            handleQuizSuccess();
+            return;
+        }
+        container.innerHTML = '';
+        res.questions.forEach((q, index) => {
+            const questionEl = document.createElement('div');
+            questionEl.className = 'quiz-question';
+            let optionsHtml = '';
+            for (const key in q.options) {
+                optionsHtml += `<div><input type="radio" name="q${q.id}" id="q${q.id}_${key}" value="${key}" required><label for="q${q.id}_${key}">${key}. ${q.options[key]}</label></div>`;
+            }
+            questionEl.innerHTML = `<p>${index + 1}. ${q.text}</p><div class="quiz-options">${optionsHtml}</div>`;
+            container.appendChild(questionEl);
+        });
+        btn.disabled = false;
+    }).withFailureHandler(err => {
+        container.innerHTML = `<p style="color:red;">Lỗi tải câu hỏi: ${err.message}</p>`;
+    }).getDailyQuiz();
+}
+
+document.getElementById('quizForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const btn = e.target.querySelector('button');
+    const errorEl = document.getElementById('quizError');
+    errorEl.classList.add('hidden');
+    btn.disabled = true;
+    btn.textContent = 'Đang kiểm tra...';
+    const formData = new FormData(e.target);
+    const userAnswers = {};
+    for (const [key, value] of formData.entries()) { userAnswers[key.substring(1)] = value; }
+
+    const payload = { authToken: AUTH, answers: userAnswers };
+
+    google.script.run.withSuccessHandler(res => {
+        if (res.passed) {
+            handleQuizSuccess();
+        } else {
+            errorEl.textContent = res.message || "Có lỗi xảy ra.";
+            errorEl.classList.remove('hidden');
+            btn.disabled = false;
+            btn.textContent = 'Nộp bài';
+        }
+    }).withFailureHandler(err => {
+        errorEl.textContent = "Lỗi hệ thống: " + err.message;
+        errorEl.classList.remove('hidden');
+        btn.disabled = false;
+        btn.textContent = 'Nộp bài';
+    }).submitQuiz(payload);
+});
+
+function handleQuizSuccess() {
+    document.getElementById('quizView').classList.add('hidden');
+    showApp();
+}
+
+document.getElementById('loginForm').addEventListener('submit', e=>{
+    e.preventDefault();
+    const u = document.getElementById('username').value.trim();
+    const p = document.getElementById('password').value;
+    google.script.run.withSuccessHandler(r=>{
+        sessionStorage.setItem('__auth', r.token);
+        AUTH = r.token;
+        google.script.run.withSuccessHandler(quizStatus => {
+            if (quizStatus.completed) {
+                showApp();
+            } else {
+                loadDailyQuiz(true);
+            }
+        }).withFailureHandler(err => alert(err.message)).checkQuizStatus(AUTH);
+    }).withFailureHandler(err=>alert(err.message||err)).login(u, p);
+});
+
+/* ===== Nav & Auth Functions ===== */
+function toggleNavMenu() { document.getElementById('navWrapper').classList.toggle('active'); }
+window.addEventListener('click', function(e) { const nav = document.getElementById('navWrapper'); if (nav && !nav.contains(e.target)) { nav.classList.remove('active'); } });
+function forgotPw(){ const u=(document.getElementById('username').value||'').trim(); if(!u) return alert('Nhập tên đăng nhập trước khi bấm Quên mật khẩu.'); google.script.run.withSuccessHandler(res=>alert(res.message||'Đã gửi email.')).withFailureHandler(e=>alert(e.message||e)).requestPasswordReset(u); }
+function logout(){ try{ sessionStorage.removeItem('__auth'); }catch(e){} AUTH=null; location.reload(); }
+function isMobileDevice() { return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent); }
+
+/* ===== App Boot Logic ===== */
+function showApp(){
+    document.getElementById('loginView').classList.add('hidden');
+    document.getElementById('quizView').classList.add('hidden');
+    document.getElementById('appView').classList.remove('hidden');
+    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+    if (/Zalo|FBAN|FBAV/i.test(userAgent)) {
+        document.getElementById('appView').innerHTML = `<div class="wrap"><div class="card"><div class="desktop-warning">⚠️<br><strong>Trình duyệt không được hỗ trợ!</strong><br><br>Vui lòng sao chép liên kết và mở bằng trình duyệt <strong>Chrome</strong> hoặc <strong>Safari</strong>.</div></div></div>`;
+        return;
+    }
+    bootMeta();
+}
+
+function bootMeta() {
+  AUTH = sessionStorage.getItem('__auth');
+  google.script.run.withSuccessHandler(res => {
+    try {
+      if (!res || !res.me) { alert('Lỗi xác thực.'); logout(); return; }
+
+      USER_ROLE = res.userRole || 'guest';
+      ME_INFO = res.me || {};
+      META = res.meta || {};
+      document.getElementById('meInfo').textContent = res.me?.fullName || res.me?.username || '';
+
+      const allTabs = ['settargets', 'upload', 'history', 'progress', 'quick', 'report', 'stockin', 'salesout', 'training'];
+      const visibleTabs = res.visibleTabs || [];
+
+      allTabs.forEach(tabName => {
+        if (!visibleTabs.includes(tabName)) {
+          const navItem = document.querySelector(`.dropdown-item[data-tab-name="${tabName}"]`);
+          const viewItem = document.getElementById(`view-${tabName}`);
+          if (navItem) navItem.remove();
+          if (viewItem) viewItem.remove();
+        }
+      });
+
+      fillMeta(META);
+      
+      // HIDE FILTERS FOR MANAGER ROLE
+      if (USER_ROLE === 'khu vực') {
+          const siFilterRegions = document.getElementById('si-filter-regions');
+          if(siFilterRegions) siFilterRegions.classList.add('hidden');
+          const soFilterRegions = document.getElementById('so-filter-regions');
+          if(soFilterRegions) soFilterRegions.classList.add('hidden');
+
+          const siRankingCard = document.getElementById('si-regional-ranking');
+          if(siRankingCard) siRankingCard.parentElement.classList.add('hidden');
+          const soRankingCard = document.getElementById('so-regional-ranking');
+          if(soRankingCard) soRankingCard.parentElement.classList.add('hidden');
+      }
+
+      if (visibleTabs.includes('report')) {
+        fillSelect('rgnSI', META.regions);
+        fillSelect('tinhSI', META.provinces);
+        fillSelectWithObjects('saleSI', META.sales, 'Tất cả');
+        fillSelect('siSVN_filter', META.svns);
+        
+        fillSelect('rgnSO', META.regions);
+        fillSelect('tinhSO', META.provinces);
+        fillSelectWithObjects('saleSO', META.sales, 'Tất cả');
+        fillSelect('soSVN_filter', META.svns);
+      }
+
+      let initialTab = visibleTabs[0] || 'upload';
+      if (USER_ROLE === 'admin' && visibleTabs.includes('settargets')) {
+        initialTab = 'settargets';
+      }
+
+      if (!isMobileDevice() && visibleTabs.includes('progress')) {
+          initialTab = 'progress';
+          const uploadContent = document.getElementById('upload-content');
+          if(uploadContent) uploadContent.innerHTML = `<div class="desktop-warning">⚠️<br><strong>Chức năng này chỉ dành cho điện thoại.</strong></div>`;
+      }
+
+      if (isMobileDevice() && visibleTabs.includes('upload')) {
+        document.getElementById('upDate').value = new Date().toISOString().slice(0, 10);
+        renderSlots();
+      }
+
+      const pMonthInput = document.getElementById('pMonth');
+      const qMonthInput = document.getElementById('qMonth');
+      if (pMonthInput) pMonthInput.value = new Date().toISOString().slice(0, 7);
+      if (qMonthInput) qMonthInput.value = new Date().toISOString().slice(0, 7);
+
+      const initialTabElement = document.querySelector(`.dropdown-item[data-tab-name="${initialTab}"]`);
+      if (initialTabElement) {
+        switchTab(initialTab, initialTabElement);
+      } else {
+        const firstAvailableTab = document.querySelector('.dropdown-item');
+        if(firstAvailableTab) {
+            switchTab(firstAvailableTab.dataset.tabName, firstAvailableTab);
+        } else {
+            document.getElementById('appView').innerHTML = `<div class="wrap"><div class="card"><div class="desktop-warning">⚠️<br><strong>Bạn không có quyền truy cập chức năng nào.</strong></div></div></div>`;
+        }
+      }
+
+    } catch (err) { alert('Lỗi khởi tạo: ' + err.message); }
+  }).withFailureHandler(e => { alert(e.message || e); logout(); }).getAdminInfo(AUTH);
+}
+
+/* ===== Tab Switching ===== */
+function switchTab(name, element){
+  document.querySelectorAll('.wrap > .card').forEach(v=>v.classList.add('hidden'));
+  const view = document.getElementById('view-'+name);
+  if(view) view.classList.remove('hidden');
+
+  const navTitle = document.getElementById('navTitle');
+  document.querySelectorAll('.dropdown-item').forEach(item => item.classList.remove('active'));
+
+  if(element) {
+    navTitle.textContent = element.dataset.tabTitle;
+    element.classList.add('active');
+  }
+  document.getElementById('navWrapper').classList.remove('active');
+
+  if(name==='history') loadHistory();
+  if(name==='progress') loadProgress();
+  if(name==='quick') loadQuickV2();
+  if(name==='training') loadTrainingCategories();
+  if(name==='stockin') loadStockInForm();
+  if(name==='salesout') loadSalesOutForm();
+  if(name==='report') loadNumericalReport();
+  if(name==='settargets') initializeSetTargetPage();
+}
+
+/* ===== Helper & Core Functions ===== */
+function fillSelect(id, arr, selectedValue) {
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.innerHTML = '<option value=\"\">— Tất cả —</option>' + (arr || []).map(x => `<option value="${x}" ${x === selectedValue ? 'selected' : ''}>${x}</option>`).join('');
+}
+function fillSelectWithObjects(id, arr, defaultOptionText = 'Tất cả', selectedValue) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.innerHTML = `<option value="">— ${defaultOptionText} —</option>` + (arr || []).map(item =>
+        `<option value="${item.username}" ${item.username === selectedValue ? 'selected' : ''}>${item.fullName}</option>`
+    ).join('');
+}
+
+
+function fillMeta(data){ ['h','p','q'].forEach(prefix => {
+    const pEl = document.getElementById(prefix+'Province');
+    if(pEl) {
+        fillSelect(prefix+'Region', data.regions);
+        fillSelect(pEl.id, data.provinces);
+        fillSelectWithObjects(prefix+'Sale', data.sales, 'Tất cả');
+        const svnEl = document.getElementById(prefix + 'SVN');
+        if(svnEl) fillSelect(svnEl.id, data.svns);
+    }
+  });
+}
+
+// ===== FILTER LOGIC (REVISED) =====
+function handleRegionChange(prefix) {
+    const rEl = document.getElementById(prefix + 'Region');
+    const sEl = document.getElementById(prefix + 'Sale');
+    if (rEl.value) {
+        if(sEl) sEl.value = '';
+    }
+
+    google.script.run.withSuccessHandler(d => {
+        fillSelect(prefix + 'Province', d.provinces);
+        if(sEl) fillSelectWithObjects(prefix + 'Sale', d.sales, 'Tất cả');
+    }).withFailureHandler(err => alert("Lỗi cập nhật bộ lọc: " + err.message))
+    .getDependentFilters(rEl.value);
+}
+
+function handleReportRegionChange(prefix) {
+    const region = document.getElementById('rgn' + prefix.toUpperCase()).value;
+    const p = prefix.toLowerCase();
+
+    // Reset dependent dropdowns
+    fillSelect('tinh' + prefix.toUpperCase(), []);
+    fillSelectWithObjects('sale' + prefix.toUpperCase(), [], 'Tất cả');
+    fillSelect(p + 'SVN_filter', []);
+    fillSelect(p + 'DVN_filter', []);
+    const shopFilter = document.getElementById(p + 'Shop_filter');
+    if(shopFilter) shopFilter.value = '';
+
+    if (!region) { // If user selects "All Regions", reset to full lists from META
+      fillSelect('tinh' + prefix.toUpperCase(), META.provinces);
+      fillSelectWithObjects('sale' + prefix.toUpperCase(), META.sales, 'Tất cả');
+      fillSelect(p + 'SVN_filter', META.svns);
+      return;
+    }
+
+    google.script.run.withSuccessHandler(d => {
+        fillSelect('tinh' + prefix.toUpperCase(), d.provinces);
+        fillSelectWithObjects('sale' + prefix.toUpperCase(), d.sales, 'Tất cả');
+        fillSelect(p + 'SVN_filter', d.svns);
+    }).withFailureHandler(err => alert("Lỗi cập nhật bộ lọc: " + err.message))
+    .getReportFilters({ region: region });
+}
+
+
+function handleSvnChange(prefix) {
+    const svnValue = document.getElementById(prefix.toLowerCase() + 'SVN_filter').value;
+    const dvnEl = document.getElementById(prefix.toLowerCase() + 'DVN_filter');
+    const shopEl = document.getElementById(prefix.toLowerCase() + 'Shop_filter');
+
+    if(dvnEl) fillSelect(dvnEl.id, []);
+    if(shopEl) shopEl.value = '';
+
+    if (svnValue) {
+        google.script.run.withSuccessHandler(dvnList => {
+            if(dvnEl) fillSelect(dvnEl.id, dvnList);
+        }).getDvnsForSvn(svnValue);
+    }
+}
+
+function handleDvnChange(prefix) {
+    const dvnValue = document.getElementById(prefix.toLowerCase() + 'DVN_filter').value;
+    const shopEl = document.getElementById(prefix.toLowerCase() + 'Shop_filter');
+    if(shopEl) shopEl.value = '';
+
+    if (dvnValue) {
+        google.script.run.withSuccessHandler(shopInfo => {
+            if (shopInfo) {
+                shopEl.value = shopInfo.shopName;
+            }
+        }).withFailureHandler(e=>alert(e.message||e)).getShopInfoByDvn(AUTH, dvnValue);
+    }
+}
+// ----- END OF FILTER LOGIC -----
+
+function exportCsv(type, btn) { const originalText = btn.textContent; btn.disabled = true; btn.textContent = 'Đang xử lý...'; let filter, serverFunction; if (type === 'progress') { filter = curProgFilter(); serverFunction = 'generateProgressCsvUrl'; } else { filter = {__auth:AUTH, month:document.getElementById('qMonth').value, region:document.getElementById('qRegion').value, province:document.getElementById('qProvince').value, sale:document.getElementById('qSale').value, svn: document.getElementById('qSVN').value, dvn: document.getElementById('qDVN').value }; serverFunction = 'generateQuickCsvUrl'; } google.script.run.withSuccessHandler(url => { btn.disabled = false; btn.textContent = originalText; if (url) { window.open(url, '_blank'); } else { alert('Không thể tạo file CSV.'); } }).withFailureHandler(err => { btn.disabled = false; btn.textContent = originalText; alert('Lỗi khi xuất CSV: ' + err.message); })[serverFunction](filter); }
+
+function curProgFilter(){ return { __auth:AUTH, month:document.getElementById('pMonth').value||new Date().toISOString().slice(0,7), region:document.getElementById('pRegion').value||'', province:document.getElementById('pProvince').value||'', sale:document.getElementById('pSale').value||'', status:document.getElementById('pStatus').value||'', svn: document.getElementById('pSVN').value || '', dvn: document.getElementById('pDVN').value || '' }; }
+
+function lookupDVN(){ let d=(document.getElementById('upDVN').value||'').trim().toUpperCase(); document.getElementById('upDVN').value=d; if(!d) return; google.script.run.withSuccessHandler(r=>{ if(r){document.getElementById('upShop').value=r.shopName||''; document.getElementById('upSale').value=r.saleName||''; document.getElementById('upRegion').value=r.region||''; document.getElementById('upProvince').value=r.province||'';}else{alert('Không tìm thấy mã DVN.');} }).withFailureHandler(e=>alert(e.message||e)).getShopInfoByDvn(AUTH,d); }
+function renderSlots(){ const g=document.getElementById('slotGrid'); if(!g) return; g.innerHTML=''; CATS.forEach((n,i)=>{ const e=document.createElement('div'); e.className='slot'+(slots[i]?' captured':''); e.innerHTML=`<div class="label">${String(i+1).padStart(2,'0')} • ${n}</div><div class="ph">Chạm để chụp</div><img alt="preview"><div class="rm" title="Xóa">×</div>`; if(slots[i]) e.querySelector('img').src=slots[i].dataUrl; e.addEventListener('click',ev=>{if(ev.target.classList.contains('rm'))return;startCapture(i);}); e.querySelector('.rm').addEventListener('click',ev=>{ev.stopPropagation();slots[i]=null;renderSlots();}); g.appendChild(e);}); }
+function startCapture(i){ const input=document.getElementById('cameraInput'); input.value=''; input.onchange=async e=>{ const f=e.target.files&&e.target.files[0]; if(!f) return; const dataUrl=await new Promise((resolve,reject)=>{const fr=new FileReader();fr.onload=()=>{const img=new Image();img.onload=()=>{const r=img.width>1600?1600/img.width:1;const c=document.createElement('canvas');c.width=Math.round(img.width*r);c.height=Math.round(img.height*r);c.getContext('2d').drawImage(img,0,0,c.width,c.height);resolve(c.toDataURL('image/jpeg',0.72));};img.onerror=reject;img.src=fr.result;};fr.onerror=reject;fr.readAsDataURL(f);}); slots[i]={name:String(CATS[i]).replace(/[\\/:*?"<>|]/g,'-').trim()+'.jpg', dataUrl}; renderSlots(); }; input.click(); }
+function doUpload(){ const p={ __auth:AUTH, date:document.getElementById('upDate').value, dvnCode:document.getElementById('upDVN').value.trim(), points:Number(document.getElementById('upPoints').value), note:document.getElementById('upNote').value.trim(), si: Number(document.getElementById('upSI').value || 0), so: Number(document.getElementById('upSO').value || 0), upEmp:document.getElementById('upEmp').value.trim(), images:slots.map(s=>s||null).filter(Boolean) }; if(!p.dvnCode||!p.note||isNaN(p.points)||p.images.length<12) return alert('Nhập DVN, Điểm, Ghi chú và chụp đủ 12 ảnh.'); const b=document.getElementById('btnUpload'); b.disabled=true; b.textContent='Đang tải...'; google.script.run.withSuccessHandler(r=>{ alert(r.message||'Đã tải lên.'); slots.fill(null); renderSlots(); document.getElementById('upPoints').value=''; document.getElementById('upNote').value=''; b.disabled=false; b.textContent='Tải lên hệ thống'; }).withFailureHandler(e=>{ alert('Lỗi: ' + e.message); b.disabled=false; b.textContent='Tải lên hệ thống'; }).saveImages(p); }
+function loadHistory(){ const t=document.querySelector('#tblHistory tbody'); t.innerHTML='<tr><td colspan="8">Đang tải...</td></tr>'; google.script.run.withSuccessHandler(d=>{ t.innerHTML=''; if(!d.rows?.length){ t.innerHTML='<tr><td colspan="8">Không có dữ liệu</td></tr>'; return; } d.rows.forEach(r=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td>${r.date}</td><td>${r.region||''}</td><td>${r.province||''}</td><td>${r.sale||''}</td><td><b>${r.dvn}</b> - ${r.shop||''}</td><td>${r.points||0}</td><td>${r.note||''}</td><td>${(r.images||[]).map(x=>`<a href='${x.url}' target='_blank'>${x.name||'Ảnh'}</a>`).join('<br>')}</td>`; t.appendChild(tr); }); }).withFailureHandler(e=>alert(e.message||e)).getHistory({ __auth:AUTH, from:document.getElementById('hFrom')?.value||null, to:document.getElementById('hTo')?.value||null, region:document.getElementById('hRegion')?.value||'', province:document.getElementById('hProvince')?.value||'', sale:document.getElementById('hSale')?.value||'', svn: document.getElementById('hSVN').value, dvn:document.getElementById('hDVN')?.value||'', shop:document.getElementById('hShop')?.value||'', limit:200 }); }
+function resetHistory(){ ['hFrom','hTo','hRegion','hProvince','hSale','hDVN','hShop', 'hSVN'].forEach(id=>{const el=document.getElementById(id); if(el) el.value='';}); handleRegionChange('h'); loadHistory(); }
+function loadProgress(){ const t=document.querySelector('#tblProgress tbody'); t.innerHTML='<tr><td colspan="7">Đang tải...</td></tr>'; google.script.run.withSuccessHandler(d=>{ const s=d.summary; const total=s.total, done=s.done; const pct=total>0?Math.round(done*1000/total)/10:0; document.getElementById('kpi-fill').style.width=pct+'%'; document.getElementById('kpi-nums').textContent=`${done}/${total} (${pct}%)`; t.innerHTML=''; if(!d.rows?.length){ t.innerHTML='<tr><td colspan="7">Không có dữ liệu</td></tr>'; return; } d.rows.forEach(r=>{ const tr=document.createElement('tr'); if(r.status==='done') tr.classList.add('status-done'); tr.innerHTML=`<td>${r.region||''}</td><td>${r.province||''}</td><td>${r.sale||''}</td><td>${r.dvn||''}</td><td>${r.shop||''}</td><td>${r.lastDate||''}</td><td><span class="status-badge ${r.status}">${r.status==='done'?'Hoàn thành':'Chưa làm'}</span></td>`; t.appendChild(tr); }); }).withFailureHandler(e=>alert(e.message||e)).getProgress(curProgFilter()); }
+function resetProgress(){ const m=new Date().toISOString().slice(0,7); ['pRegion','pProvince','pSale','pStatus', 'pSVN', 'pDVN'].forEach(id=>{const el=document.getElementById(id); if(el) el.value='';}); document.getElementById('pMonth').value=m; handleRegionChange('p'); loadProgress(); }
+function loadQuickV2(){ const m = document.getElementById('qMonth').value || new Date().toISOString().slice(0,7); document.getElementById('qMonth').value = m; const filter = {__auth:AUTH, month:m, region:document.getElementById('qRegion').value, province:document.getElementById('qProvince').value, sale:document.getElementById('qSale').value, svn: document.getElementById('qSVN').value, dvn: document.getElementById('qDVN').value}; google.script.run.withSuccessHandler(renderQuickV2).withFailureHandler(e => alert(e.message || e)).getQuickReportV2(filter); }
+function renderQuickV2(rep){
+  if(!rep || !rep.ok){
+    alert(rep.message || 'Không có dữ liệu báo cáo');
+    return;
+  }
+  document.getElementById('qTotal').textContent = (rep.totalAuditedShops||0).toLocaleString('vi-VN');
+  document.getElementById('qPct').textContent = (rep.percentCompleted||0) + '%';
+  document.getElementById('qAvg').textContent = (rep.avgPointsPerShop||0).toLocaleString('vi-VN');
+  document.getElementById('qPctFill').style.width = Math.min(100, rep.percentCompleted||0) + '%';
+  drawHorizontalBarChart('qErrBar', (rep.errorBreakdown||[]).map(x=>x.name), (rep.errorBreakdown||[]).map(x=>x.count||0));
+
+  const rk = rep.salesRanking||[], box = document.getElementById('qRanking');
+  if(!rk || !rk.length){
+    box.innerHTML = '<div style="padding: 8px 4px;">Không có dữ liệu xếp hạng</div>';
+  } else {
+    box.innerHTML = rk.map((x,idx)=>{
+      const badge = idx<3? `rank-badge rank-${idx+1}` : 'rank-badge';
+      return `<div class="row-rank"><div class="rank-left"><div class="${badge}">${idx+1}</div><div>${x.name}</div></div><div>${x.completed}/${x.total} (${x.percent}%)</div></div>`;
+    }).join('');
+  }
+
+  const topShops = rep.topShops || [], tsBox = document.getElementById('qTopShops');
+  if(!topShops || !topShops.length){
+    tsBox.innerHTML = '<div style="padding: 8px 4px;">Không có dữ liệu xếp hạng cửa hàng</div>';
+  } else {
+    tsBox.innerHTML = topShops.map((x,idx)=>{
+        const badge = idx < 3 ? `rank-badge rank-${idx+1}` : 'rank-badge';
+        return `<div class="row-rank">
+                    <div class="rank-left">
+                        <div class="${badge}">${idx+1}</div>
+                        <div>
+                            <b>${x.shopName}</b>
+                            <div style="font-size:11px; color:#666;">${x.dvn}</div>
+                        </div>
+                    </div>
+                    <div>
+                        <b style="color: #e65100;">${x.points} điểm</b>
+                        <div style="font-size:11px; color:#666; text-align:right;">${x.date}</div>
+                    </div>
+                </div>`;
+    }).join('');
+  }
+}
+function drawHorizontalBarChart(canvasId, labels, values) { const c = document.getElementById(canvasId); if (!c) return; if (!values || values.length === 0) { c.style.height = '0px'; return; } const ctx = c.getContext('2d'), dpr = window.devicePixelRatio || 1; const n = labels.length; const barHeight = 25 * dpr, vPadding = 15 * dpr; const chartHeight = n * (barHeight + vPadding) + vPadding; c.style.height = chartHeight / dpr + 'px'; const W = c.width = c.clientWidth * dpr; const H = c.height = chartHeight; ctx.clearRect(0, 0, W, H); if (!n) return; const padR=40*dpr, labelPad = W * 0.5, chartW = W - labelPad - padR; const max = Math.max(...values, 1); ctx.font = `500 ${12 * dpr}px Roboto`; for (let i = 0; i < n; i++) { const y = (i * (barHeight + vPadding)) + (vPadding/2); ctx.fillStyle = '#333'; ctx.textAlign = 'right'; ctx.textBaseline = 'middle'; ctx.fillText(labels[i].substr(0, 25), labelPad - 10 * dpr, y + barHeight / 2); const barW = values[i] > 0 ? chartW * values[i] / max : 0; ctx.fillStyle = '#ff9800'; ctx.fillRect(labelPad, y, barW, barHeight); ctx.fillStyle = '#333'; ctx.textAlign = 'left'; ctx.fillText(values[i], labelPad + barW + 5 * dpr, y + barHeight / 2); } }
+
+/* ===== TRAINING PANEL FUNCTIONS V2 ===== */
+function loadTrainingCategories() {
+    showTrainingCategories();
+    const container = document.getElementById('category-list-container');
+    container.innerHTML = 'Đang tải danh mục...';
+    google.script.run.withSuccessHandler(res => {
+        if (!res.ok) { container.innerHTML = 'Lỗi: Không thể tải danh mục.'; return; }
+        container.innerHTML = '';
+        if (res.categories.length === 0) { container.innerHTML = 'Chưa có danh mục đào tạo nào.'; return; }
+        res.categories.forEach(catName => {
+            const btn = document.createElement('div');
+            btn.className = 'category-button';
+            btn.onclick = () => loadLessonsForCategory(catName);
+            const iconUrl = CATEGORY_ICONS[catName] || CATEGORY_ICONS['default'];
+            btn.innerHTML = `<img src="${iconUrl}" class="category-icon" alt=""><div class="category-title">${catName}</div>`;
+            container.appendChild(btn);
+        });
+    }).withFailureHandler(e => { container.innerHTML = 'Lỗi khi tải danh mục: ' + e.message; }).getTrainingCategories(AUTH);
+}
+function loadLessonsForCategory(categoryName) {
+    document.getElementById('training-category-view').classList.add('hidden');
+    document.getElementById('training-lesson-view').classList.remove('hidden');
+    document.getElementById('lesson-list-title').textContent = categoryName;
+    const container = document.getElementById('lesson-card-list');
+    container.innerHTML = 'Đang tải bài học...';
+    google.script.run.withSuccessHandler(res => {
+        if (!res.ok) { container.innerHTML = 'Lỗi: ' + res.message; return; }
+        container.innerHTML = '';
+        if (res.items.length === 0) { container.innerHTML = 'Chưa có bài học nào trong danh mục này.'; return; }
+        res.items.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'lesson-card';
+            const newBadge = item.tags.includes('NEW') ? '<span class="lesson-new-badge">NEW</span>' : '';
+            card.innerHTML = `<div class="lesson-thumbnail" style="background-image: url('${item.thumbnail}')"></div><div class="lesson-details"><div class="lesson-title-row"><div class="lesson-title">${item.title}</div>${newBadge}</div><a class="btn btn-line" style="width:auto; padding: 6px 14px; font-size: 13px; margin-top:4px;" target="_blank" href="${item.fileUrl}">Xem ngay</a></div>`;
+            container.appendChild(card);
+        });
+    }).withFailureHandler(e => { container.innerHTML = 'Lỗi khi tải bài học: ' + e.message; }).listTrainingLessons({ __auth: AUTH, category: categoryName });
+}
+function showTrainingCategories() {
+    document.getElementById('training-category-view').classList.remove('hidden');
+    document.getElementById('training-lesson-view').classList.add('hidden');
+}
+
+/* ===== STOCK & SALES PANEL FUNCTIONS ===== */
+function loadStockInForm() {
+  document.getElementById('siDate').value = new Date().toISOString().slice(0,10);
+  const container = document.getElementById('stockInVehicleList');
+  container.innerHTML = 'Đang tải danh sách xe...';
+  if (PRODUCT_LIST.length === 0) {
+      google.script.run.withSuccessHandler(products => {
+        PRODUCT_LIST = products;
+        initVehicleForm('stockin');
+      }).withFailureHandler(err => {
+        container.innerHTML = `<div class="quiz-error">${err.message}</div>`;
+      }).getProducts(AUTH);
+  } else {
+      initVehicleForm('stockin');
+  }
+}
+
+function loadSalesOutForm() {
+  document.getElementById('soDate').value = new Date().toISOString().slice(0,10);
+  const container = document.getElementById('salesOutVehicleList');
+  container.innerHTML = 'Đang tải danh sách xe...';
+  if (PRODUCT_LIST.length === 0) {
+      google.script.run.withSuccessHandler(products => {
+        PRODUCT_LIST = products;
+        initVehicleForm('salesout');
+      }).withFailureHandler(err => {
+        container.innerHTML = `<div class="quiz-error">${err.message}</div>`;
+      }).getProducts(AUTH);
+  } else {
+      initVehicleForm('salesout');
+  }
+}
+
+function initVehicleForm(type) {
+    const isSales = type === 'salesout';
+    const container = document.getElementById(isSales ? 'salesOutVehicleList' : 'stockInVehicleList');
+    container.innerHTML = '';
+    if (PRODUCT_LIST.length === 0) {
+        container.innerHTML = '<div class="muted" style="padding: 16px; text-align: center;">Vui lòng thêm danh sách xe và giá bán vào sheet "Products"</div>';
+        return;
+    }
+    addVehicleRow(type);
+}
+
+function addVehicleRow(type) {
+  if (PRODUCT_LIST.length === 0) return alert("Không có danh sách xe để thêm.");
+  const isSales = type === 'salesout';
+  const container = document.getElementById(isSales ? 'salesOutVehicleList' : 'stockInVehicleList');
+  const rowId = `${type}-row-${Date.now()}`;
+  const newRow = document.createElement('div');
+  newRow.id = rowId;
+
+  const options = PRODUCT_LIST.map(p => `<option value="${p.name}">${p.name}</option>`).join('');
+
+  if (isSales) {
+    newRow.className = 'sales-vehicle-row';
+    newRow.innerHTML = `
+      <select class="vehicle-name" onchange="calculateRowRevenue(this.parentNode)"></select>
+      <input type="number" class="vehicle-qty" placeholder="SL" min="1" style="width: 60px;" oninput="calculateRowRevenue(this.parentNode)">
+      <div class="subtotal">0 đ</div>
+      <button class="btn-line" onclick="document.getElementById('${rowId}').remove()" style="margin:0; background-color:#ffebee; color:#c62828; border-color:#ffcdd2;">X</button>
+    `;
+    newRow.querySelector('.vehicle-name').innerHTML = `<option value="">— Chọn xe —</option>${options}`;
+  } else {
+    newRow.className = 'row vehicle-row';
+    newRow.style.marginBottom = '8px';
+    newRow.innerHTML = `
+      <div style="flex-grow:1;"><select class="vehicle-name"><option value="">— Chọn xe —</option>${options}</select></div>
+      <div><input type="number" class="vehicle-qty" placeholder="SL" min="1" style="max-width: 80px;"></div>
+      <div><button class="btn-line" onclick="document.getElementById('${rowId}').remove()" style="margin:0; background-color:#ffebee; color:#c62828; border-color:#ffcdd2;">X</button></div>
+    `;
+  }
+  container.appendChild(newRow);
+}
+
+function calculateRowRevenue(rowElement) {
+    const vehicleName = rowElement.querySelector('.vehicle-name').value;
+    const quantity = Number(rowElement.querySelector('.vehicle-qty').value) || 0;
+    const product = PRODUCT_LIST.find(p => p.name === vehicleName);
+    const price = product ? product.price : 0;
+    const subtotal = price * quantity;
+    rowElement.querySelector('.subtotal').textContent = subtotal.toLocaleString('vi-VN') + ' đ';
+}
+
+function lookupDVNForStockIn() {
+    let d = (document.getElementById('siDVN').value||'').trim().toUpperCase();
+    document.getElementById('siDVN').value = d;
+    ['siShop', 'siSVN', 'siSale', 'siRegion', 'siProvince'].forEach(id => document.getElementById(id).value = '');
+    if(!d) return;
+
+    google.script.run.withSuccessHandler(r => {
+        if(r) {
+            document.getElementById('siShop').value = r.shopName || '';
+            document.getElementById('siSVN').value = r.svn || '';
+            document.getElementById('siSale').value = r.saleName || '';
+            document.getElementById('siRegion').value = r.region || '';
+            document.getElementById('siProvince').value = r.province || '';
+        } else {
+            alert('Không tìm thấy mã DVN.');
+        }
+    }).withFailureHandler(e=>alert(e.message||e)).getShopInfoByDvn(AUTH, d);
+}
+
+function lookupDVNForSalesOut() {
+    let d = (document.getElementById('soDVN').value||'').trim().toUpperCase();
+    document.getElementById('soDVN').value = d;
+    ['soShop', 'soSVN', 'soSale', 'soRegion', 'soProvince'].forEach(id => document.getElementById(id).value = '');
+    if(!d) return;
+
+    google.script.run.withSuccessHandler(r => {
+        if(r) {
+            document.getElementById('soShop').value = r.shopName || '';
+            document.getElementById('soSVN').value = r.svn || '';
+            document.getElementById('soSale').value = r.saleName || '';
+            document.getElementById('soRegion').value = r.region || '';
+            document.getElementById('soProvince').value = r.province || '';
+        } else {
+            alert('Không tìm thấy mã DVN.');
+        }
+    }).withFailureHandler(e=>alert(e.message||e)).getShopInfoByDvn(AUTH, d);
+}
+
+function doSubmitStockIn(btn) {
+  const date = document.getElementById('siDate').value;
+  if (!date) return alert('Vui lòng chọn ngày nhập.');
+
+  const dvnCode = document.getElementById('siDVN').value.trim();
+  const shopName = document.getElementById('siShop').value.trim();
+  if (!dvnCode || !shopName) return alert('Vui lòng nhập Mã DVN và tra cứu Tên Shop.');
+
+  const svn = document.getElementById('siSVN').value.trim();
+  const sale = document.getElementById('siSale').value.trim();
+  const region = document.getElementById('siRegion').value.trim();
+  const province = document.getElementById('siProvince').value.trim();
+
+  const vehicles = [];
+  document.querySelectorAll('#stockInVehicleList .vehicle-row').forEach(row => {
+    const name = row.querySelector('.vehicle-name').value;
+    const quantity = Number(row.querySelector('.vehicle-qty').value);
+    if (name && quantity > 0) {
+      vehicles.push({ name, quantity });
+    }
+  });
+
+  if (vehicles.length === 0) return alert('Vui lòng thêm ít nhất một loại xe và số lượng.');
+
+  btn.disabled = true;
+  btn.textContent = 'Đang gửi...';
+
+  const payload = { __auth: AUTH, date, dvnCode, shopName, svn, sale, region, province, vehicles };
+  google.script.run.withSuccessHandler(res => {
+    alert(res.message || 'Gửi thành công!');
+    ['siDVN', 'siShop', 'siSVN', 'siSale', 'siRegion', 'siProvince'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('stockInVehicleList').innerHTML = '';
+    addVehicleRow('stockin');
+    btn.disabled = false;
+    btn.textContent = 'Gửi lên hệ thống';
+  }).withFailureHandler(err => {
+    alert('Lỗi: ' + err.message);
+    btn.disabled = false;
+    btn.textContent = 'Gửi lên hệ thống';
+  }).saveStockIn(payload);
+}
+
+function doSubmitSalesOut(btn) {
+  const date = document.getElementById('soDate').value;
+  if (!date) return alert('Vui lòng chọn ngày bán.');
+
+  const dvnCode = document.getElementById('soDVN').value.trim();
+  const shopName = document.getElementById('soShop').value.trim();
+  if (!dvnCode || !shopName) return alert('Vui lòng nhập Mã DVN và tra cứu Tên Shop.');
+
+  const pgName = document.getElementById('soPgName').value.trim();
+
+  const svn = document.getElementById('soSVN').value.trim();
+  const sale = document.getElementById('soSale').value.trim();
+  const region = document.getElementById('soRegion').value.trim();
+  const province = document.getElementById('soProvince').value.trim();
+
+  const vehicles = [];
+  document.querySelectorAll('#salesOutVehicleList .sales-vehicle-row').forEach(row => {
+    const name = row.querySelector('.vehicle-name').value;
+    const quantity = Number(row.querySelector('.vehicle-qty').value);
+    if (name && quantity > 0) {
+      vehicles.push({ name, quantity });
+    }
+  });
+
+  if (vehicles.length === 0) return alert('Vui lòng thêm ít nhất một loại xe đã bán.');
+
+  btn.disabled = true;
+  btn.textContent = 'Đang gửi...';
+
+  const payload = { __auth: AUTH, date, dvnCode, shopName, svn, sale, region, province, pgName, vehicles };
+  google.script.run.withSuccessHandler(res => {
+    alert(res.message || 'Gửi thành công!');
+    ['soDVN', 'soPgName', 'soShop', 'soSVN', 'soSale', 'soRegion', 'soProvince'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('salesOutVehicleList').innerHTML = '';
+    addVehicleRow('salesout');
+    btn.disabled = false;
+    btn.textContent = 'Gửi lên hệ thống';
+  }).withFailureHandler(err => {
+    alert('Lỗi: ' + err.message);
+    btn.disabled = false;
+    btn.textContent = 'Gửi lên hệ thống';
+  }).saveSalesOut(payload);
+}
+
+/* ===== NUMERICAL REPORT PANEL FUNCTIONS ===== */
+function loadNumericalReport() {
+    const monthSI = document.getElementById('monthSI');
+    if(monthSI) monthSI.value = new Date().toISOString().slice(0, 7);
+    switchReportTab('si', document.getElementById('tab-si-report'));
+    fetchAndRenderSIReport();
+}
+
+function switchReportTab(type, element) {
+    document.querySelectorAll('.report-tab').forEach(t => t.classList.remove('active'));
+    element.classList.add('active');
+
+    document.getElementById('si-report-content').classList.add('hidden');
+    document.getElementById('so-report-content').classList.add('hidden');
+
+    if (type === 'si') {
+        document.getElementById('si-report-content').classList.remove('hidden');
+    } else if (type === 'so') {
+        const soReportContent = document.getElementById('so-report-content');
+        soReportContent.classList.remove('hidden');
+        if (!SO_BAR_CHART) {
+            document.getElementById('monthSO').value = new Date().toISOString().slice(0, 7);
+            fetchAndRenderSOReport();
+        }
+    }
+}
+
+function fetchAndRenderSIReport() {
+    let filter = {
+        __auth: AUTH,
+        region: document.getElementById('rgnSI').value,
+        province: document.getElementById('tinhSI').value,
+        sale: document.getElementById('saleSI').value,
+        month: document.getElementById('monthSI').value,
+        svn: document.getElementById('siSVN_filter').value,
+        dvn: document.getElementById('siDVN_filter').value,
+        shop: document.getElementById('siShop_filter').value,
+    };
+    if (USER_ROLE === 'khu vực') {
+        filter.region = ME_INFO.region;
+    }
+    google.script.run.withSuccessHandler(data => {
+        renderBarChart(data.barChartData);
+        renderPieChart(data.pieChartData);
+        renderProgress('si', data.progressData); 
+        renderRegionalRanking('si', data.regionalRanking);
+    }).withFailureHandler(err => {
+        alert("Lỗi tải báo cáo: " + err.message);
+    }).getStockInReport(filter);
+}
+
+function renderBarChart(chartData) {
+    const ctx = document.getElementById('siBarChart').getContext('2d');
+    if (SI_BAR_CHART) SI_BAR_CHART.destroy();
+    SI_BAR_CHART = new Chart(ctx, {
+        type: 'bar', data: chartData, options: { responsive: true, scales: { y: { beginAtZero: true } },
+            plugins: { datalabels: { anchor: 'end', align: 'top',
+                    formatter: (value, context) => { const ratio = context.dataset.ratios[context.dataIndex]; if (ratio === null || ratio === undefined) { return value > 0 ? value : ''; } const arrow = ratio > 100 ? '▲' : (ratio < 100 ? '▼' : ''); const ratioStr = ratio.toFixed(0) + '%'; return value > 0 ? `${value}\n${arrow} ${ratioStr}`: ''; },
+                    color: (context) => { const ratio = context.dataset.ratios[context.dataIndex]; if (ratio === null || ratio === undefined || ratio === 100) return '#444'; return ratio > 100 ? 'green' : 'red'; },
+                    font: { size: 10 }
+            }}
+        }
+    });
+}
+
+function renderPieChart(chartData) {
+    const ctx = document.getElementById('siPieChart').getContext('2d');
+    if (SI_PIE_CHART) SI_PIE_CHART.destroy();
+    SI_PIE_CHART = new Chart(ctx, {
+        type: 'pie', data: chartData, options: { responsive: true,
+            plugins: { legend: { position: 'top' }, datalabels: {
+                    formatter: (value, context) => { const sum = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0); if (sum === 0) return '0 (0%)'; const percentage = (value / sum * 100).toFixed(1) + '%'; return `${value}\n(${percentage})`; },
+                    color: '#fff',
+            }}
+        }
+    });
+}
+
+function exportStockInCsv(btn) {
+    const originalText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Đang xử lý...';
+    let filter = {
+        __auth: AUTH,
+        region: document.getElementById('rgnSI').value,
+        province: document.getElementById('tinhSI').value,
+        sale: document.getElementById('saleSI').value,
+        month: document.getElementById('monthSI').value,
+        svn: document.getElementById('siSVN_filter').value,
+        dvn: document.getElementById('siDVN_filter').value,
+        shop: document.getElementById('siShop_filter').value
+    };
+    if (USER_ROLE === 'khu vực') {
+        filter.region = ME_INFO.region;
+    }
+    google.script.run.withSuccessHandler(url => { btn.disabled = false; btn.textContent = originalText; if (url) { window.open(url, '_blank'); } else { alert('Không thể tạo file CSV.'); }
+    }).withFailureHandler(err => { btn.disabled = false; btn.textContent = originalText; alert('Lỗi khi xuất CSV: ' + err.message);
+    }).generateStockInReportCsvUrl(filter);
+}
+
+// ----- S.O. REPORT FUNCTIONS -----
+function fetchAndRenderSOReport() {
+    let filter = {
+        __auth: AUTH,
+        region: document.getElementById('rgnSO').value,
+        province: document.getElementById('tinhSO').value,
+        sale: document.getElementById('saleSO').value,
+        month: document.getElementById('monthSO').value,
+        svn: document.getElementById('soSVN_filter').value,
+        dvn: document.getElementById('soDVN_filter').value,
+        shop: document.getElementById('soShop_filter').value
+    };
+    if (USER_ROLE === 'khu vực') {
+        filter.region = ME_INFO.region;
+    }
+    google.script.run.withSuccessHandler(data => {
+        renderSOBarChart(data.quantityBarChartData);
+        renderSOPieChart(data.quantityPieChartData);
+        renderSORevenueBarChart(data.revenueBarChartData);
+        renderSORevenuePieChart(data.revenuePieChartData);
+        renderProgress('so', data.progressData); 
+        renderRegionalRanking('so', data.regionalRanking);
+    }).withFailureHandler(err => {
+        alert("Lỗi tải báo cáo S.O: " + err.message);
+    }).getSalesOutReport(filter);
+}
+
+function renderSOBarChart(chartData) {
+    const ctx = document.getElementById('soBarChart').getContext('2d');
+    if (SO_BAR_CHART) SO_BAR_CHART.destroy();
+    SO_BAR_CHART = new Chart(ctx, {
+        type: 'bar', data: chartData, options: { responsive: true, scales: { y: { beginAtZero: true } },
+            plugins: {
+                tooltip: { callbacks: { label: context => context.parsed.y.toLocaleString('vi-VN') } },
+                datalabels: { anchor: 'end', align: 'top',
+                    formatter: (value, context) => { const ratio = context.dataset.ratios[context.dataIndex]; if (ratio === null || ratio === undefined) { return value > 0 ? value : ''; } const arrow = ratio > 100 ? '▲' : (ratio < 100 ? '▼' : ''); const ratioStr = ratio.toFixed(0) + '%'; return value > 0 ? `${value}\n${arrow} ${ratioStr}`: ''; },
+                    color: (context) => { const ratio = context.dataset.ratios[context.dataIndex]; if (ratio === null || ratio === undefined || ratio === 100) return '#444'; return ratio > 100 ? 'green' : 'red'; },
+                    font: { size: 10 }
+                }
+            }
+        }
+    });
+}
+
+function renderSOPieChart(chartData) {
+    const ctx = document.getElementById('soPieChart').getContext('2d');
+    if (SO_PIE_CHART) SO_PIE_CHART.destroy();
+    SO_PIE_CHART = new Chart(ctx, {
+        type: 'pie', data: chartData, options: { responsive: true,
+            plugins: {
+                legend: { position: 'top' },
+                tooltip: { callbacks: { label: context => context.label + ': ' + context.parsed.toLocaleString('vi-VN') } },
+                datalabels: {
+                    formatter: (value, context) => { const sum = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0); if (sum === 0) return '0 (0%)'; const percentage = (value / sum * 100).toFixed(1) + '%'; return `${value}\n(${percentage})`; },
+                    color: '#fff',
+                }
+            }
+        }
+    });
+}
+
+function renderSORevenueBarChart(chartData) {
+    const ctx = document.getElementById('soRevenueBarChart').getContext('2d');
+    if (SO_REVENUE_BAR_CHART) SO_REVENUE_BAR_CHART.destroy();
+    SO_REVENUE_BAR_CHART = new Chart(ctx, {
+        type: 'bar', data: chartData, options: { responsive: true, scales: { y: { beginAtZero: true, ticks: { callback: value => value > 0 ? (value/1e6).toLocaleString('vi-VN') + 'tr' : 0 } } },
+            plugins: {
+                tooltip: { callbacks: { label: context => context.parsed.y.toLocaleString('vi-VN') + ' đ'} },
+                datalabels: { anchor: 'end', align: 'top',
+                    formatter: (value, context) => { const ratio = context.dataset.ratios[context.dataIndex]; if (ratio === null || ratio === undefined) { return value > 0 ? (value/1e6).toFixed(1) + 'tr' : ''; } const arrow = ratio > 100 ? '▲' : (ratio < 100 ? '▼' : ''); const ratioStr = ratio.toFixed(0) + '%'; return value > 0 ? `${(value/1e6).toFixed(1)}tr\n${arrow} ${ratioStr}`: ''; },
+                    color: (context) => { const ratio = context.dataset.ratios[context.dataIndex]; if (ratio === null || ratio === undefined || ratio === 100) return '#444'; return ratio > 100 ? 'green' : 'red'; },
+                    font: { size: 10 }
+                }
+            }
+        }
+    });
+}
+
+function renderSORevenuePieChart(chartData) {
+    const ctx = document.getElementById('soRevenuePieChart').getContext('2d');
+    if (SO_REVENUE_PIE_CHART) SO_REVENUE_PIE_CHART.destroy();
+    SO_REVENUE_PIE_CHART = new Chart(ctx, {
+        type: 'pie', data: chartData, options: { responsive: true,
+            plugins: {
+                legend: { position: 'top' },
+                tooltip: { callbacks: { label: context => context.label + ': ' + context.parsed.toLocaleString('vi-VN') + ' đ' } },
+                datalabels: {
+                    formatter: (value, context) => {
+                        const sum = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                        if (sum === 0) return '0%';
+                        const percentage = (value / sum * 100).toFixed(1) + '%';
+                        const valStr = value > 1e6 ? (value/1e6).toFixed(1) + 'tr' : (value/1e3).toFixed(0) + 'k';
+                        return `${valStr}\n(${percentage})`;
+                    },
+                    color: '#fff',
+                }
+            }
+        }
+    });
+}
+
+function exportSalesOutCsv(btn) {
+    const originalText = btn.textContent; btn.disabled = true; btn.textContent = 'Đang xử lý...';
+    let filter = {
+        __auth: AUTH,
+        region: document.getElementById('rgnSO').value,
+        province: document.getElementById('tinhSO').value,
+        sale: document.getElementById('saleSO').value,
+        month: document.getElementById('monthSO').value,
+        svn: document.getElementById('soSVN_filter').value,
+        dvn: document.getElementById('soDVN_filter').value,
+        shop: document.getElementById('soShop_filter').value
+    };
+    if (USER_ROLE === 'khu vực') {
+        filter.region = ME_INFO.region;
+    }
+    google.script.run.withSuccessHandler(url => { btn.disabled = false; btn.textContent = originalText; if (url) { window.open(url, '_blank'); } else { alert('Không thể tạo file CSV.'); }
+    }).withFailureHandler(err => { btn.disabled = false; btn.textContent = originalText; alert('Lỗi khi xuất CSV: ' + err.message);
+    }).generateSalesOutReportCsvUrl(filter);
+}
+
+/* ===== [MỚI] TARGET REPORT FUNCTIONS ===== */
+function renderProgress(type, data) {
+    // type là 'si' hoặc 'so'
+    const container = document.getElementById(`${type}-progress-container`);
+    if (!data) {
+        container.innerHTML = '<p class="muted">Không có dữ liệu tiến độ.</p>';
+        return;
+    }
+    
+    // Ẩn tiến độ toàn quốc nếu vai trò là Khu vực
+    if (USER_ROLE === 'khu vực' && !data.title.includes('Toàn Quốc')) {
+        container.parentElement.classList.remove('hidden');
+    } else if (USER_ROLE !== 'khu vực') {
+        container.parentElement.classList.remove('hidden');
+    } else {
+        container.parentElement.classList.add('hidden');
+        return;
+    }
+
+    const displayPercent = data.percent > 100 ? 100 : data.percent;
+    const percentText = data.percent.toFixed(1) + '%';
+    const progressClass = type === 'si' ? 'progress-si' : 'progress-so';
+    
+    container.innerHTML = `
+        <div class="head" style="color: var(--primary-blue); margin-bottom: 12px;">${data.title}</div>
+        <div class="progress-label">
+            <span>HOÀN THÀNH</span>
+            <span>${data.actual.toLocaleString('vi-VN')} / ${data.target.toLocaleString('vi-VN')}</span>
+        </div>
+        <div class="progress-bar-bg">
+            <div class="progress-bar-fill ${progressClass}" style="width: ${displayPercent}%;">${percentText}</div>
+        </div>
+    `;
+}
+
+function renderRegionalRanking(type, data) {
+    // type là 'si' hoặc 'so'
+    const container = document.getElementById(`${type}-regional-ranking`);
+    const regionFilterValue = document.getElementById(type === 'si' ? 'rgnSI' : 'rgnSO').value;
+
+    // Ẩn bảng xếp hạng khu vực nếu đang lọc một khu vực cụ thể hoặc là role khu vực
+    if (regionFilterValue || USER_ROLE === 'khu vực') {
+         container.parentElement.style.display = 'none';
+         return;
+    }
+    container.parentElement.style.display = 'block';
+
+    if (!data || data.length === 0) {
+        container.innerHTML = '<div style="padding: 8px 4px;">Không có dữ liệu để xếp hạng.</div>';
+        return;
+    }
+
+    container.innerHTML = data.map((item, idx) => {
+        const badge = idx < 3 ? `rank-badge rank-${idx + 1}` : 'rank-badge';
+        const percent = item.percent.toFixed(1);
+        return `<div class="row-rank">
+                    <div class="rank-left">
+                        <div class="${badge}">${idx + 1}</div>
+                        <div>${item.region}</div>
+                    </div>
+                    <div>${item.actual.toLocaleString('vi-VN')}/${item.target.toLocaleString('vi-VN')} (${percent}%)</div>
+                </div>`;
+    }).join('');
+}
+
+/* ===== ADMIN SET TARGETS FUNCTIONS (NEW SIMPLER VERSION) ===== */
+function initializeSetTargetPage() {
+    const monthInput = document.getElementById('st-month');
+    if (monthInput) monthInput.value = new Date().toISOString().slice(0, 7);
+
+    const regionSelect = document.getElementById('st-region-select');
+    regionSelect.innerHTML = '<option>Đang tải...</option>';
+    
+    google.script.run
+        .withSuccessHandler(meta => {
+            fillSelect('st-region-select', meta.regions);
+            loadTargetsForMonth();
+        })
+        .withFailureHandler(err => {
+            regionSelect.innerHTML = `<option>Lỗi tải danh sách</option>`;
+            alert(err.message);
+        })
+        .getMetaFiltersPublic();
+}
+
+function loadSalesForRegion() {
+    const region = document.getElementById('st-region-select').value;
+    const saleSelect = document.getElementById('st-sale-select');
+    saleSelect.innerHTML = '<option value="">— Chọn Sale —</option>';
+    if (!region) return;
+
+    google.script.run
+        .withSuccessHandler(salesList => {
+            fillSelectWithObjects('st-sale-select', salesList, 'Chọn Sale');
+        })
+        .withFailureHandler(err => {
+            alert(err.message);
+        })
+        .getSalesByRegion(region);
+}
+
+function loadSalesForTargetReport() {
+    const region = document.getElementById('rgnTarget').value;
+    const saleSelect = document.getElementById('saleTarget');
+    saleSelect.innerHTML = '<option value="">— Tất cả —</option>';
+    if (!region) {
+        fillSelectWithObjects('saleTarget', META.sales, 'Tất cả');
+        return;
+    }
+    google.script.run
+        .withSuccessHandler(salesList => {
+            fillSelectWithObjects('saleTarget', salesList, 'Tất cả');
+        })
+        .withFailureHandler(err => {
+            alert(err.message);
+        })
+        .getSalesByRegion(region);
+}
+
+function loadTargetsForMonth() {
+    const container = document.getElementById('st-list-container');
+    container.innerHTML = '<p class="muted" style="text-align:center;">Đang tải...</p>';
+    const yearMonth = document.getElementById('st-month').value;
+    if (!yearMonth) {
+        container.innerHTML = '';
+        return;
+    }
+
+    google.script.run
+        .withSuccessHandler(res => {
+            if(!res.ok){
+              container.innerHTML = `<p class="quiz-error">${res.message}</p>`;
+              return;
+            }
+            EXISTING_TARGETS = res.data;
+            renderExistingTargets(res.data);
+        })
+        .withFailureHandler(err => {
+            container.innerHTML = `<p class="quiz-error">Lỗi: ${err.message}</p>`;
+        })
+        .getExistingSaleTargets({__auth: AUTH, yearMonth: yearMonth});
+}
+
+function renderExistingTargets(targets) {
+    const container = document.getElementById('st-list-container');
+    
+    if (!targets || targets.length === 0) {
+        container.innerHTML = '<p class="muted" style="text-align:center;">Chưa có target nào được thiết lập cho tháng này.</p>';
+        return;
+    }
+    
+    let table = '<table><thead><tr><th>Tên Sale</th><th>Chỉ tiêu S.I</th><th>Chỉ tiêu S.O</th></tr></thead><tbody>';
+    targets.sort((a,b) => a.fullName.localeCompare(b.fullName)).forEach(target => {
+        table += `<tr>
+                    <td>${target.fullName}</td>
+                    <td>${target.targetSI.toLocaleString('vi-VN')}</td>
+                    <td>${target.targetSO.toLocaleString('vi-VN')}</td>
+                  </tr>`;
+    });
+    table += '</tbody></table>';
+    container.innerHTML = table;
+}
+
+function saveTarget(btn) {
+    const yearMonth = document.getElementById('st-month').value;
+    const saleUsername = document.getElementById('st-sale-select').value;
+    const targetSI = document.getElementById('st-target-si').value;
+    const targetSO = document.getElementById('st-target-so').value;
+
+    if (!yearMonth || !saleUsername) {
+        alert('Vui lòng chọn tháng và chọn nhân viên Sale.');
+        return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Đang lưu...';
+
+    const payload = {
+        __auth: AUTH,
+        yearMonth,
+        saleUsername,
+        targetSI: Number(targetSI) || 0,
+        targetSO: Number(targetSO) || 0
+    };
+
+    google.script.run
+        .withSuccessHandler(res => {
+            alert(res.message);
+            btn.disabled = false;
+            btn.textContent = 'Lưu Target';
+            document.getElementById('st-sale-select').value = '';
+            document.getElementById('st-target-si').value = '';
+            document.getElementById('st-target-so').value = '';
+            loadTargetsForMonth();
+        })
+        .withFailureHandler(err => {
+            alert('Lỗi: ' + err.message);
+            btn.disabled = false;
+            btn.textContent = 'Lưu Target';
+        })
+        .saveSingleSaleTarget(payload);
+}
+</script>
+</body>
+</html>
